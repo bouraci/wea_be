@@ -18,6 +18,6 @@ public class GreetingController : ControllerBase
     public string Get([FromBody] string name)
     {
         _logger.LogInformation($"Said hello to {name}");
-        return $"Hello {name}";
+        return $"Hello, {name}";
     }
 }

@@ -2,14 +2,15 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var logFilePath = builder.Configuration["Logging:File:Path"] ?? "/var/logs";
-var rollingInterval = Enum.Parse<RollingInterval>(builder.Configuration["Logging:File:RollingInterval"] ?? "Day");
-
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.File(logFilePath, rollingInterval: rollingInterval)
+    .WriteTo.Console()
     .CreateLogger();
 
-builder.Host.UseSerilog();
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+{
+    loggerConfiguration.WriteTo.Console();
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -22,6 +23,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
