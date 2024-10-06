@@ -38,12 +38,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+    dbContext.Database.EnsureCreated();
     try
     {
         // Attempt to open a connection to the database
@@ -55,13 +54,18 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"Database connection failed: {ex.Message}");
     }
+
+    // migrate if needed, doing this with docker sucks in this stack
+    if (dbContext.Database.GetPendingMigrations().Any())
+    {
+        dbContext.Database.Migrate();
+    }
 }
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 
 app.UseSerilogRequestLogging();
 

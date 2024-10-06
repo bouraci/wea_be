@@ -1,0 +1,29 @@
+services:
+  wea_db:
+    image: mysql:8.0
+    restart: unless-stopped
+    container_name: wea_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: WEAez
+    networks:
+      - wea_net
+  wea_be:
+    image: hejsekvojtech/wea_be
+    container_name: wea_be
+    depends_on:
+      - wea_db
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - wea_net
+networks:
+  wea_net:
+    external: true
+    name: wea_net
