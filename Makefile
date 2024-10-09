@@ -1,7 +1,5 @@
 all: clone-be run
 
-build-push: clone-be build push
-
 in:
 	docker exec -it wea_be bash
 
@@ -16,3 +14,6 @@ run:
 db:
 	@echo "Starting DB..."
 	docker compose up -d --build db
+
+init:
+	docker network inspect cdb-network >/dev/null 2>&1 || docker network create --driver bridge cdb-network
