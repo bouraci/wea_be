@@ -26,4 +26,6 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+COPY ["WEA_BE/Data", "/app/"]
+
 ENTRYPOINT ["dotnet", "WEA_BE.dll"]

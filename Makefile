@@ -1,7 +1,7 @@
 all: clone-be run
 
 in:
-	docker exec -it wea_be bash
+	docker exec -it sk07-web bash
 
 build:
 	@echo "Building WEA_BE image..."
