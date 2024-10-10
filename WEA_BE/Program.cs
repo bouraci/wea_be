@@ -42,7 +42,6 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    dbContext.Database.EnsureCreated();
     try
     {
         // Attempt to open a connection to the database
