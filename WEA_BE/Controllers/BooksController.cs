@@ -1,4 +1,5 @@
-﻿using EFModels.Data;
+﻿using AutoMapper;
+using EFModels.Data;
 using Microsoft.AspNetCore.Mvc;
 using WEA_BE.DTO;
 
@@ -10,30 +11,28 @@ public class BooksController : ControllerBase
 {
     private readonly ILogger<BooksController> _logger;
     private readonly DatabaseContext _ctx;
-    public BooksController(ILogger<BooksController> logger, DatabaseContext ctx)
+    private readonly IMapper _mapper;
+    public BooksController(ILogger<BooksController> logger, DatabaseContext ctx, IMapper mapper)
     {
         _logger = logger;
         _ctx = ctx;
+        _mapper = mapper;
     }
 
     [HttpGet]
     public List<BookDto> Get()
     {
-        List<BookDto> books = new List<BookDto>();
-        foreach (var book in _ctx.books)
-        {
-            var bookDto = new BookDto(book);
-            books.Add(bookDto);
-        }
+        var books = _ctx.Books.ToList();
+        var bookDtos = _mapper.Map<List<BookDto>>(books);
 
-        return books;
+        return bookDtos;
     }
 
     [HttpGet("{id}")]
     public BookDto Get([FromRoute] int id)
     {
-        var book = _ctx.books.SingleOrDefault(x => x.Id == id);
-        var bookDto = new BookDto(book);
+        var book = _ctx.Books.SingleOrDefault(x => x.Id == id);
+        var bookDto = _mapper.Map<BookDto>(book);
         return bookDto;
     }
 
