@@ -12,11 +12,17 @@ services:
       MYSQL_ROOT_PASSWORD: WEAez
     networks:
       - cdb-network
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   sk07-web:
     image: hejsekvojtech/wea_be
     container_name: sk07-web
     depends_on:
-      - wea_db
+      wea_db:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
