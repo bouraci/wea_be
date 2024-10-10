@@ -1,6 +1,9 @@
 using EFModels.Data;
+using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using WEA_BE.DTO;
+using WEA_BE.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,11 +16,11 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
     loggerConfiguration.WriteTo.Console();
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 });
-
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {
     var ConnectionString = builder.Configuration.GetConnectionString("Default");
-    options.UseMySQL(ConnectionString);
+    var serverVersion = ServerVersion.AutoDetect(ConnectionString);
+    options.UseMySql(ConnectionString, serverVersion);
 });
 
 var WEACors = "_WEACors";
@@ -37,12 +40,15 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.CreateMap<Book, BookDto>().ReverseMap();
+});
 var app = builder.Build();
+
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-    dbContext.Database.EnsureCreated();
     try
     {
         // Attempt to open a connection to the database
@@ -60,6 +66,16 @@ using (var scope = app.Services.CreateScope())
     {
         dbContext.Database.Migrate();
     }
+
+    if (await LoadFromApiService.TryLoadFromApi(dbContext, app.Logger) == false)
+    {
+        if (!dbContext.Books.Any())
+        {
+            string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
+            await LoadFromCSVService.LoadFromCSV(csvPath, dbContext);
+        }
+    }
+
 }
 if (app.Environment.IsDevelopment())
 {
@@ -70,6 +86,7 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 
 //app.UseHttpsRedirection();
+
 
 app.UseCors(WEACors);
 
