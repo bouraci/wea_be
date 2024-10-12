@@ -21,46 +21,50 @@ public class BooksController : ControllerBase
 
     [HttpGet]
     public IActionResult Get(
-        [FromQuery] string? title,
-        [FromQuery] string? author,
-        [FromQuery] string? genre,
+        [FromQuery] string title,
+        [FromQuery] string author,
+        [FromQuery] string genre,
         [FromQuery] int? publicationYear,
         [FromQuery] double? minRating,
         [FromQuery] double? maxRating,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
-        
+        if (pageSize > 100) pageSize = 100;
+
         var query = _ctx.Books.AsQueryable();
 
-        if (!string.IsNullOrEmpty(title))
+        if (!string.IsNullOrWhiteSpace(title))
         {
-            query = query.Where(b => b.Title.Contains(title) && title.Length <= 100);
+            query = query.Where(b => b.Title.ToLower()
+                                            .Contains(title.Trim().ToLower()));
         }
 
-        if (!string.IsNullOrEmpty(author))
+        if (!string.IsNullOrWhiteSpace(author))
         {
-            query = query.Where(b => b.Authors.Contains(author) && author.Length <= 100);
+            query = query.Where(b => b.Authors.ToLower()
+                                              .Contains(author.Trim().ToLower()));
         }
 
-        if (!string.IsNullOrEmpty(genre))
+        if (!string.IsNullOrWhiteSpace(genre))
         {
-            query = query.Where(b => b.Genre.Contains(genre) && genre.Length <= 100);
+            query = query.Where(b => b.Genre.ToLower()
+                                            .Contains(genre.Trim().ToLower()));
         }
 
-        if (publicationYear.HasValue)
+        if (publicationYear is not null)
         {
-            query = query.Where(b => b.PublicationYear == publicationYear.Value);
+            query = query.Where(b => b.PublicationYear == publicationYear);
         }
 
-        if (minRating.HasValue)
+        if (minRating is not null)
         {
-            query = query.Where(b => b.Rating >= minRating.Value);
+            query = query.Where(b => b.Rating >= minRating);
         }
 
-        if (maxRating.HasValue)
+        if (maxRating is not null)
         {
-            query = query.Where(b => b.Rating <= maxRating.Value);
+            query = query.Where(b => b.Rating <= maxRating);
         }
 
         var totalRecords = query.Count();
