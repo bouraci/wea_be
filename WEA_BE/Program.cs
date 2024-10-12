@@ -3,7 +3,7 @@ using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WEA_BE.DTO;
-using WEA_BE.Services;
+using WEA_BE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +44,11 @@ builder.Services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<Book, BookDto>().ReverseMap();
 });
+string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
+
+builder.Services.AddSingleton(new FilePathOptions { CsvPath = csvPath });
+
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -65,15 +70,6 @@ using (var scope = app.Services.CreateScope())
     if (dbContext.Database.GetPendingMigrations().Any())
     {
         dbContext.Database.Migrate();
-    }
-
-    if (await LoadFromApiService.TryLoadFromApi(dbContext, app.Logger) == false)
-    {
-        if (!dbContext.Books.Any())
-        {
-            string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
-            await LoadFromCSVService.LoadFromCSV(csvPath, dbContext);
-        }
     }
 
 }
