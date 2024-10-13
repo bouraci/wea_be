@@ -21,9 +21,9 @@ public class BooksController : ControllerBase
 
     [HttpGet]
     public IActionResult Get(
-        [FromQuery] string title,
-        [FromQuery] string author,
-        [FromQuery] string genre,
+        [FromQuery] string? title,
+        [FromQuery] string? author,
+        [FromQuery] string? genre,
         [FromQuery] int? publicationYear,
         [FromQuery] double? minRating,
         [FromQuery] double? maxRating,
