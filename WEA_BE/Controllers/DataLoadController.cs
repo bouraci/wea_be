@@ -8,25 +8,57 @@ namespace WEA_BE.Controllers;
 [ApiController]
 public class DataLoadController : ControllerBase
 {
-    private readonly ILogger<BooksController> _logger;
+    private readonly ILogger<DataLoadController> _logger;
     private readonly DatabaseContext _ctx;
     private readonly FilePathOptions _options;
-    public DataLoadController(ILogger<BooksController> logger, DatabaseContext ctx, FilePathOptions options)
+
+    public DataLoadController(ILogger<DataLoadController> logger, DatabaseContext ctx, FilePathOptions options)
     {
         _logger = logger;
         _ctx = ctx;
         _options = options;
     }
-    [HttpGet]
-    public async Task<IActionResult> Get()
+
+    // Endpoint to load data from CSV file
+    [HttpPost("csv")]
+    public async Task<IActionResult> LoadFromCsv(IFormFile file)
     {
-        if (await LoadFromApiService.TryLoadFromApi(_ctx, _logger) == false)
+        if (file == null || file.Length == 0)
         {
-            if (!_ctx.Books.Any())
-            {
-                await LoadFromCSVService.LoadFromCSV(_options.CsvPath, _ctx);
-            }
+            return BadRequest("No file provided.");
         }
-        return Ok();
+
+        try
+        {
+
+            await LoadFromCSVService.LoadFromCSV(_options.CsvPath, _ctx);
+            return Ok("Data loaded successfully from CSV file.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while loading data from CSV.");
+            return StatusCode(500, "Internal server error.");
+        }
+    }
+
+    // Endpoint to load data from string (passed in request body)
+    [HttpPost("cdb")]
+    public async Task<IActionResult> LoadFromString([FromBody] string data)
+    {
+        if (string.IsNullOrWhiteSpace(data))
+        {
+            return BadRequest("No data provided.");
+        }
+
+        try
+        {
+            await LoadFromStringService.LoadFromString(_ctx, data);
+            return Ok("Data loaded successfully from string.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while loading data from string.");
+            return StatusCode(500, "Internal server error.");
+        }
     }
 }
