@@ -21,16 +21,10 @@ public class DataLoadController : ControllerBase
 
     // Endpoint to load data from CSV file
     [HttpPost("csv")]
-    public async Task<IActionResult> LoadFromCsv(IFormFile file)
+    public async Task<IActionResult> LoadFromCsv()
     {
-        if (file == null || file.Length == 0)
-        {
-            return BadRequest("No file provided.");
-        }
-
         try
         {
-
             await LoadFromCSVService.LoadFromCSV(_options.CsvPath, _ctx);
             return Ok("Data loaded successfully from CSV file.");
         }
