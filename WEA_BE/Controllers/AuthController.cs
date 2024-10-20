@@ -4,15 +4,29 @@ using WEA_BE.Services;
 
 namespace WEA_BE.Controllers;
 
+/// <summary>
+/// API Controller pro autentizaci uživatelů (registraci a přihlášení).
+/// </summary>
+[Route("auth")]
+[ApiController]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
 
+    /// <summary>
+    /// Konstruktor pro AuthController.
+    /// </summary>
+    /// <param name="authService">Služba pro autentizaci uživatelů.</param>
     public AuthController(IAuthService authService)
     {
         _authService = authService;
     }
 
+    /// <summary>
+    /// Endpoint pro registraci nového uživatele.
+    /// </summary>
+    /// <param name="registerRequestDto">DTO obsahující registrační údaje (jméno, uživatelské jméno, heslo).</param>
+    /// <returns>Vrací zprávu o úspěšné registraci nebo chybový stav.</returns>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
     {
@@ -41,6 +55,11 @@ public class AuthController : ControllerBase
         return Conflict("User already exists.");
     }
 
+    /// <summary>
+    /// Endpoint pro přihlášení uživatele.
+    /// </summary>
+    /// <param name="loginRequestDto">DTO obsahující přihlašovací údaje (uživatelské jméno, heslo).</param>
+    /// <returns>Vrací uživatelská data, pokud je přihlášení úspěšné, nebo chybový stav.</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestDto)
     {

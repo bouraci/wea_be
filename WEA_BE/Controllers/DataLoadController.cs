@@ -4,6 +4,10 @@ using WEA_BE.Models;
 using WEA_BE.Services;
 
 namespace WEA_BE.Controllers;
+
+/// <summary>
+/// API Controller pro načítání dat do databáze z různých zdrojů (CSV, string).
+/// </summary>
 [Route("data")]
 [ApiController]
 public class DataLoadController : ControllerBase
@@ -12,6 +16,12 @@ public class DataLoadController : ControllerBase
     private readonly DatabaseContext _ctx;
     private readonly FilePathOptions _options;
 
+    /// <summary>
+    /// Konstruktor pro DataLoadController.
+    /// </summary>
+    /// <param name="logger">Služba pro logování chyb a informací.</param>
+    /// <param name="ctx">Databázový kontext pro manipulaci s daty.</param>
+    /// <param name="options">Možnosti nastavení cesty k souborům.</param>
     public DataLoadController(ILogger<DataLoadController> logger, DatabaseContext ctx, FilePathOptions options)
     {
         _logger = logger;
@@ -19,7 +29,10 @@ public class DataLoadController : ControllerBase
         _options = options;
     }
 
-    // Endpoint to load data from CSV file
+    /// <summary>
+    /// Endpoint pro načtení dat z CSV souboru.
+    /// </summary>
+    /// <returns>Vrací zprávu o úspěšném načtení nebo chybový stav.</returns>
     [HttpPost("csv")]
     public async Task<IActionResult> LoadFromCsv()
     {
@@ -35,7 +48,11 @@ public class DataLoadController : ControllerBase
         }
     }
 
-    // Endpoint to load data from string (passed in request body)
+    /// <summary>
+    /// Endpoint pro načtení dat ze stringu, který je poslán v těle žádosti.
+    /// </summary>
+    /// <param name="data">Řetězec obsahující data ve formátu JSON.</param>
+    /// <returns>Vrací zprávu o úspěšném načtení nebo chybový stav.</returns>
     [HttpPost("cdb")]
     public async Task<IActionResult> LoadFromString([FromBody] string data)
     {
