@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WEA_BE.DTO;
 using WEA_BE.Models;
+using WEA_BE.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,12 +42,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<Book, BookDto>().ReverseMap();
+    cfg.CreateMap<User, UserDto>().ReverseMap();
 });
 string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
 
 builder.Services.AddSingleton(new FilePathOptions { CsvPath = csvPath });
 
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -85,7 +88,6 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 
 //app.UseHttpsRedirection();
-
 
 app.UseCors(WEACors);
 

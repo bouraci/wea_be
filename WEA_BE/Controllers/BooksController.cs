@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WEA_BE.DTO;
+using WEA_BE.Services;
+
+namespace WEA_BE.Controllers;
 
 [Route("books")]
 [ApiController]
@@ -25,6 +27,8 @@ public class BooksController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
+        _logger.LogInformation("Recieved request:");
+        _logger.LogInformation(Request.ToString());
         var books = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
         var response = new
         {
