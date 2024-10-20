@@ -2,6 +2,7 @@ using AutoMapper;
 using EFModels.Data;
 using WEA_BE.DTO;
 
+namespace WEA_BE.Services;
 public class BookService : IBookService
 {
     private readonly DatabaseContext _ctx;

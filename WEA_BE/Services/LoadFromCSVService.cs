@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace WEA_BE.Services;
 
-public static class LoadFromCSVService
+public static class LoadFromCsvService
 {
     public static async Task LoadFromCSV(string filePath, DatabaseContext ctx)
     {
@@ -19,9 +19,9 @@ public static class LoadFromCSVService
         using (var csv = new CsvReader(reader, config))
         {
             csv.Context.RegisterClassMap<BookMap>();
-            var records = csv.GetRecords<Book>();
+            IEnumerable<Book> records = csv.GetRecords<Book>();
             ctx.Books.AddRange(records);
-            ctx.SaveChanges();
+            await ctx.SaveChangesAsync();
         }
     }
 }
@@ -44,9 +44,9 @@ public sealed class BookMap : ClassMap<Book>
         Map(m => m.Genre).Index(5);            // Sixth column
         Map(m => m.CoverImageUrl).Index(6);    // Seventh column
         Map(m => m.Description).Index(7);      // Eighth column
-        Map(m => m.PublicationYear).Index(8).Default(0); ;  // Ninth column
+        Map(m => m.PublicationYear).Index(8).Default(0);   // Ninth column
         Map(m => m.Rating).Index(9).Default(0.0);           // Tenth column
-        Map(m => m.PageCount).Index(10).Default(0); ;       // Eleventh column
+        Map(m => m.PageCount).Index(10).Default(0);        // Eleventh column
         Map(m => m.TotalRatings).Index(11).Default(0);    // Twelfth column
     }
 }
