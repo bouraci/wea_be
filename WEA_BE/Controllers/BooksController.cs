@@ -30,6 +30,7 @@ public class BooksController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
+
         if (pageSize > 100) pageSize = 100;
 
         var query = _ctx.Books.AsQueryable();

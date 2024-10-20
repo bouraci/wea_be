@@ -25,7 +25,7 @@ public class DataLoadController : ControllerBase
     {
         try
         {
-            await LoadFromCSVService.LoadFromCSV(_options.CsvPath, _ctx);
+            await LoadFromCsvService.LoadFromCSV(_options.CsvPath, _ctx);
             return Ok("Data loaded successfully from CSV file.");
         }
         catch (Exception ex)
