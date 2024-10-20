@@ -1,19 +1,47 @@
-### Endpoint pro načítání dat
+# DataLoadController - Načítání dat z JSON řetězce
 
-Tato aplikace poskytuje endpoint pro načítání dat buď z externí API, nebo pokud není API dostupné, z lokálního CSV souboru.
+Tento dokument popisuje funkci endpointu, který umožňuje načítat data knih z JSON řetězce a ukládat je do databáze prostřednictvím Entity Frameworku v ASP.NET Core API.
 
-#### Endpoint
+## Endpoint
 
-**GET /data**
+**URL:** `/data/cdb`  
+**Metoda:** `POST`
 
-Tento endpoint se pokouší načíst data z externí API na adrese `http://wea.nti.tul.cz:1337/data`. Pokud není API dostupné nebo vrátí stavový kód 404, služba načte data z CSV souboru, jehož cesta je nastavena v konfiguraci aplikace.
+### Popis
 
-#### Postup:
-1. Aplikace se pokusí načíst data z API pomocí služby `LoadFromApiService`.
-2. Pokud API vrátí 404 nebo není dostupné, zkontroluje, zda databáze obsahuje knihy.
-3. Pokud databáze neobsahuje žádné knihy, zavolá se `LoadFromCSVService`, která načte data z CSV souboru.
-4. Data se uloží do tabulky `Books` v `DatabaseContext`.
+Tento endpoint slouží k načtení dat knih ve formátu JSON, které jsou zaslány v těle požadavku. Po přijetí je JSON řetězec deserializován do seznamu objektů typu `Book` a následně uložen do databáze.
 
-#### Příklad odpovědi
+### Požadavek
 
-Status: 200 OK
+- Tělo požadavku (`Body`): JSON řetězec obsahující data knih.
+
+### Odpovědi
+
+- `200 OK`: Data byla úspěšně načtena a uložena do databáze.
+  - Textová odpověď: `"Data loaded successfully from string."`
+  
+- `400 Bad Request`: Pokud je požadavek prázdný nebo obsahuje neplatný řetězec JSON.
+  - Textová odpověď: `"No data provided."`
+  
+- `500 Internal Server Error`: Pokud dojde k chybě při zpracování nebo ukládání dat.
+  - Textová odpověď: `"Internal server error."`
+
+## Metoda LoadFromString
+
+Metoda `LoadFromString` je zodpovědná za načtení a uložení dat do databáze z JSON řetězce.
+
+### Jak to funguje
+
+1. **Vstup:**
+   - Metoda přijímá řetězec obsahující JSON data reprezentující kolekci objektů typu `Book`.
+
+2. **Deserializace:**
+   - Data jsou deserializována do seznamu objektů typu `Book` pomocí `JsonSerializer.Deserialize<List<Book>>(json)`.
+
+3. **Uložení do databáze:**
+   - Objekty knih jsou přidány do kontextu databáze (`ctx.Books.AddRange(books)`) a následně uloženy voláním `await ctx.SaveChangesAsync()`.
+
+### Závislosti
+
+- `DatabaseContext`: Kontext databáze pro komunikaci s databází.
+- `JsonSerializer`: Použit k deserializaci JSON řetězce do seznamu objektů.
