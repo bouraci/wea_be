@@ -13,7 +13,7 @@ public class BookService : IBookService
         _mapper = mapper;
     }
 
-    public List<BookDto> GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize)
+    public (List<BookDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize)
     {
         if (pageSize > 100) pageSize = 100;
 
@@ -44,7 +44,7 @@ public class BookService : IBookService
                          .ToList();
 
         var bookDtos = _mapper.Map<List<BookDto>>(books);
-        return bookDtos;
+        return (bookDtos, totalRecords);
     }
 
     public BookDto GetBookById(int id)

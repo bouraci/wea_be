@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WEA_BE.DTO;
+using WEA_BE.Services;
+
+namespace WEA_BE.Controllers;
 
 [Route("books")]
 [ApiController]
@@ -25,11 +28,13 @@ public class BooksController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
-        var books = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
+        _logger.LogInformation("Recieved request:");
+        _logger.LogInformation(Request.ToString());
+        (List<BookDto> books, int totalRecords) = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
         var response = new
         {
-            TotalRecords = books.Count,
-            TotalPages = (int)Math.Ceiling(books.Count / (double)pageSize),
+            TotalRecords = totalRecords,
+            TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
             Page = page,
             PageSize = pageSize,
             Books = books
