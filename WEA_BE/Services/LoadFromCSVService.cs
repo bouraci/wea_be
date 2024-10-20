@@ -6,8 +6,18 @@ using System.Globalization;
 
 namespace WEA_BE.Services;
 
+/// <summary>
+/// Statická třída poskytující službu pro načítání dat knih z CSV souboru.
+/// </summary>
 public static class LoadFromCsvService
 {
+    /// <summary>
+    /// Načte data knih z CSV souboru a uloží je do databáze.
+    /// </summary>
+    /// <param name="filePath">Cesta k CSV souboru, který obsahuje data knih.</param>
+    /// <param name="ctx">Kontext databáze, který se používá k uložení dat.</param>
+    /// <returns>Asynchronní úloha, která indikuje, kdy bylo načtení a uložení dat dokončeno.</returns>
+
     public static async Task LoadFromCSV(string filePath, DatabaseContext ctx)
     {
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)

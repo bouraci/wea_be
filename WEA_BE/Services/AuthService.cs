@@ -7,17 +7,32 @@ using WEA_BE.DTO;
 
 namespace WEA_BE.Services
 {
+    /// <summary>
+    /// Služba pro správu autentizace uživatelů, zahrnující registraci a přihlášení.
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly DatabaseContext _ctx;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Konstruktor služby autentizace, který přijímá kontext databáze a mapper pro mapování objektů.
+        /// </summary>
+        /// <param name="ctx">Kontext databáze pro přístup k uživatelům.</param>
+        /// <param name="mapper">Automapper pro mapování mezi entitami a DTO.</param>
         public AuthService(DatabaseContext ctx, IMapper mapper)
         {
             _ctx = ctx;
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Zaregistruje nového uživatele s poskytnutými údaji.
+        /// </summary>
+        /// <param name="name">Jméno uživatele.</param>
+        /// <param name="username">Uživatelské jméno.</param>
+        /// <param name="password">Heslo uživatele.</param>
+        /// <returns>Vrací true, pokud registrace proběhla úspěšně, nebo false, pokud uživatel s daným uživatelským jménem již existuje.</returns>
         public async Task<bool> RegisterAsync(string name, string username, string password)
         {
             if (await _ctx.Set<User>().AnyAsync(u => u.UserName == username))
@@ -48,7 +63,12 @@ namespace WEA_BE.Services
             return true;
         }
 
-
+        /// <summary>
+        /// Zajistí hashování hesla pomocí algoritmu PBKDF2.
+        /// </summary>
+        /// <param name="password">Heslo k hashování.</param>
+        /// <param name="salt">Salt pro hashování hesla.</param>
+        /// <returns>Vrací hash hesla ve formě Base64 řetězce.</returns>
         private static string HashPassword(string password, byte[] salt)
         {
             using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000, HashAlgorithmName.SHA256))
@@ -57,6 +77,13 @@ namespace WEA_BE.Services
                 return Convert.ToBase64String(hash);
             }
         }
+
+        /// <summary>
+        /// Přihlašuje uživatele na základě uživatelského jména a hesla.
+        /// </summary>
+        /// <param name="username">Uživatelské jméno.</param>
+        /// <param name="password">Heslo uživatele.</param>
+        /// <returns>Vrací DTO uživatele, pokud je přihlášení úspěšné, nebo null, pokud je přihlášení neúspěšné.</returns>
         public async Task<UserDto?> LoginAsync(string username, string password)
         {
             var user = await _ctx.Set<User>().FirstOrDefaultAsync(u => u.UserName == username);
