@@ -37,9 +37,7 @@ builder.Services.AddCors(options =>
     );
 });
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<Book, BookDto>().ReverseMap();
@@ -48,6 +46,11 @@ string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
 
 builder.Services.AddSingleton(new FilePathOptions { CsvPath = csvPath });
 
+builder.Services.AddScoped<IBookService, BookService>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

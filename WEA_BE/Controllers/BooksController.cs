@@ -1,22 +1,17 @@
-﻿using AutoMapper;
-using EFModels.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WEA_BE.DTO;
-
-namespace WEA_BE.Controllers;
 
 [Route("books")]
 [ApiController]
 public class BooksController : ControllerBase
 {
     private readonly ILogger<BooksController> _logger;
-    private readonly DatabaseContext _ctx;
-    private readonly IMapper _mapper;
-    public BooksController(ILogger<BooksController> logger, DatabaseContext ctx, IMapper mapper)
+    private readonly IBookService _bookService;
+
+    public BooksController(ILogger<BooksController> logger, IBookService bookService)
     {
         _logger = logger;
-        _ctx = ctx;
-        _mapper = mapper;
+        _bookService = bookService;
     }
 
     [HttpGet]
@@ -30,71 +25,26 @@ public class BooksController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
-        if (pageSize > 100) pageSize = 100;
-
-        var query = _ctx.Books.AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(title))
-        {
-            query = query.Where(b => b.Title.ToLower()
-                                            .Contains(title.Trim().ToLower()));
-        }
-
-        if (!string.IsNullOrWhiteSpace(author))
-        {
-            query = query.Where(b => b.Authors.ToLower()
-                                              .Contains(author.Trim().ToLower()));
-        }
-
-        if (!string.IsNullOrWhiteSpace(genre))
-        {
-            query = query.Where(b => b.Genre.ToLower()
-                                            .Contains(genre.Trim().ToLower()));
-        }
-
-        if (publicationYear is not null)
-        {
-            query = query.Where(b => b.PublicationYear == publicationYear);
-        }
-
-        if (minRating is not null)
-        {
-            query = query.Where(b => b.Rating >= minRating);
-        }
-
-        if (maxRating is not null)
-        {
-            query = query.Where(b => b.Rating <= maxRating);
-        }
-
-        var totalRecords = query.Count();
-        var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
-
-        var books = query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        var bookDtos = _mapper.Map<List<BookDto>>(books);
-
+        var books = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
         var response = new
         {
-            TotalRecords = totalRecords,
-            TotalPages = totalPages,
+            TotalRecords = books.Count,
+            TotalPages = (int)Math.Ceiling(books.Count / (double)pageSize),
             Page = page,
             PageSize = pageSize,
-            Books = bookDtos
+            Books = books
         };
 
         return Ok(response);
     }
 
     [HttpGet("{id}")]
-    public BookDto Get([FromRoute] int id)
+    public IActionResult Get([FromRoute] int id)
     {
-        var book = _ctx.Books.SingleOrDefault(x => x.Id == id);
-        var bookDto = _mapper.Map<BookDto>(book);
-        return bookDto;
-    }
+        var book = _bookService.GetBookById(id);
+        if (book == null)
+            return NotFound();
 
+        return Ok(book);
+    }
 }
