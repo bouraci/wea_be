@@ -11,16 +11,18 @@ public class BookService : IBookService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
+    private readonly ICommentService _commentService;
 
     /// <summary>
     /// Konstruktor pro inicializaci služby s kontextem databáze a mapováním objektů.
     /// </summary>
     /// <param name="ctx">Kontext databáze pro přístup k datům knih.</param>
     /// <param name="mapper">Automapper pro mapování mezi entitami a DTO.</param>
-    public BookService(DatabaseContext ctx, IMapper mapper)
+    public BookService(DatabaseContext ctx, IMapper mapper, ICommentService commentService)
     {
         _ctx = ctx;
         _mapper = mapper;
+        _commentService = commentService;
     }
 
     /// Vrací seznam knih na základě zadaných filtrů a podporuje stránkování.
@@ -34,7 +36,7 @@ public class BookService : IBookService
     /// <param name="page">Číslo stránky (výchozí hodnota 1).</param>
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
-    public (List<BookDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize)
+    public (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize)
     {
         if (pageSize > 100) pageSize = 100;
 
@@ -64,7 +66,7 @@ public class BookService : IBookService
                          .Take(pageSize)
                          .ToList();
 
-        var bookDtos = _mapper.Map<List<BookDto>>(books);
+        var bookDtos = _mapper.Map<List<BookSimpleDto>>(books);
         return (bookDtos, totalRecords);
     }
 
@@ -76,6 +78,8 @@ public class BookService : IBookService
     public BookDto GetBookById(int id)
     {
         var book = _ctx.Books.SingleOrDefault(x => x.Id == id);
-        return _mapper.Map<BookDto>(book);
+        var bookDtos = _mapper.Map<BookDto>(book);
+        bookDtos.comments = _commentService.GetComments(id);
+        return bookDtos;
     }
 }

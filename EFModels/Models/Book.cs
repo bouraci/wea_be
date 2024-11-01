@@ -19,6 +19,8 @@ public class Book
     public int PageCount { get; set; }
     public int TotalRatings { get; set; }
 
+    public ICollection<Comment> Comments { get; set; }
+
 
     public override string ToString()
     {

@@ -18,7 +18,7 @@ public interface IBookService
     /// <param name="page">Číslo stránky (výchozí hodnota 1).</param>
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
-    (List<BookDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize);
+    (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize);
     /// <summary>
     /// Vrací konkrétní knihu na základě jejího ID.
     /// </summary>

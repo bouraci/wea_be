@@ -35,7 +35,7 @@ namespace WEA_BE.Services
         /// <returns>Vrací true, pokud registrace proběhla úspěšně, nebo false, pokud uživatel s daným uživatelským jménem již existuje.</returns>
         public async Task<bool> RegisterAsync(string name, string username, string password)
         {
-            if (await _ctx.Set<User>().AnyAsync(u => u.UserName == username))
+            if (await _ctx.Users.AnyAsync(u => u.UserName == username))
             {
                 return false;
             }
@@ -57,7 +57,7 @@ namespace WEA_BE.Services
                 PasswordHash = Convert.ToBase64String(salt) + ":" + passwordHash
             };
 
-            _ctx.Set<User>().Add(user);
+            _ctx.Users.Add(user);
             await _ctx.SaveChangesAsync();
 
             return true;
@@ -86,7 +86,7 @@ namespace WEA_BE.Services
         /// <returns>Vrací DTO uživatele, pokud je přihlášení úspěšné, nebo null, pokud je přihlášení neúspěšné.</returns>
         public async Task<UserDto?> LoginAsync(string username, string password)
         {
-            var user = await _ctx.Set<User>().FirstOrDefaultAsync(u => u.UserName == username);
+            var user = await _ctx.Users.FirstOrDefaultAsync(u => u.UserName == username);
             if (user == null)
             {
                 return null;
