@@ -42,7 +42,11 @@ builder.Services.AddCors(options =>
 builder.Services.AddAutoMapper(cfg =>
 {
     cfg.CreateMap<Book, BookDto>().ReverseMap();
+    cfg.CreateMap<Book, BookSimpleDto>().ReverseMap();
     cfg.CreateMap<User, UserDto>().ReverseMap();
+    cfg.CreateMap<Comment, CommentDto>()
+       .ForMember(dest => dest.CreatorUserName, opt => opt.MapFrom(src => src.User.UserName))
+       .ReverseMap();
 });
 string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
 
@@ -50,6 +54,7 @@ builder.Services.AddSingleton(new FilePathOptions { CsvPath = csvPath });
 
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

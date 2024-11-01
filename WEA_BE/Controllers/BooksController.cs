@@ -51,7 +51,7 @@ public class BooksController : ControllerBase
     {
         _logger.LogInformation("Recieved request:");
         _logger.LogInformation(Request.ToString());
-        (List<BookDto> books, int totalRecords) = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
+        (List<BookSimpleDto> books, int totalRecords) = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
         var response = new BooksResponse()
         {
             TotalRecords = totalRecords,
