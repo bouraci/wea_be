@@ -89,9 +89,13 @@ public class BookService : IBookService
     public List<string> GetUniqueGenres()
     {
         return _ctx.Books
-        .Select(b => b.Genre)
-        .Where(g => !string.IsNullOrWhiteSpace(g))
-        .Distinct()
-        .ToList();
+            .Select(b => b.Genre)                            
+            .Where(g => !string.IsNullOrWhiteSpace(g))       
+            .AsEnumerable()                                 
+            .SelectMany(g => g.Split(',', StringSplitOptions.RemoveEmptyEntries)) 
+            .Select(g => g.Trim())                           
+            .Where(g => !string.IsNullOrWhiteSpace(g))       
+            .Distinct(StringComparer.OrdinalIgnoreCase)     
+            .ToList();
     }
 }
