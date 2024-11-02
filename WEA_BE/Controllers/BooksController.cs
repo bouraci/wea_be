@@ -79,4 +79,16 @@ public class BooksController : ControllerBase
 
         return Ok(book);
     }
+
+    /// <summary>
+    /// Endpoint pro získání unikátních žánrů
+    /// </summary>
+    /// <returns>List unikátních žánrů</returns>
+    [HttpGet("genres")]
+    public IActionResult GetGenres()
+    {
+        var genres = _bookService.GetUniqueGenres();
+        return Ok(genres);
+    }
+
 }

@@ -82,4 +82,20 @@ public class BookService : IBookService
         bookDtos.comments = _commentService.GetComments(id);
         return bookDtos;
     }
+    /// <summary>
+    /// Vrací list unikátních žánrů z Databáze
+    /// </summary>
+    /// <returns>List unikátních žánrů</returns>
+    public List<string> GetUniqueGenres()
+    {
+        return _ctx.Books
+            .Select(b => b.Genre)                            
+            .Where(g => !string.IsNullOrWhiteSpace(g))       
+            .AsEnumerable()                                 
+            .SelectMany(g => g.Split(',', StringSplitOptions.RemoveEmptyEntries)) 
+            .Select(g => g.Trim())                           
+            .Where(g => !string.IsNullOrWhiteSpace(g))       
+            .Distinct(StringComparer.OrdinalIgnoreCase)     
+            .ToList();
+    }
 }

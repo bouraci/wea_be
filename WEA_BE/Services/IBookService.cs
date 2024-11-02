@@ -25,4 +25,9 @@ public interface IBookService
     /// <param name="id">ID knihy.</param>
     /// <returns>DTO objekt knihy.</returns>
     BookDto GetBookById(int id);
+    /// <summary>
+    /// vrací list unikátních žánrů
+    /// </summary>
+    /// <returns>List unikátních žánrů.</returns>
+    List<string> GetUniqueGenres();
 }
