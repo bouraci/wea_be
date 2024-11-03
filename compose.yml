@@ -4,10 +4,9 @@ services:
     restart: unless-stopped
     container_name: wea_db
     ports:
-      - "50006:3306"
+      - "5006:3306"
     volumes:
       - ./dbdata:/var/lib/mysql
-      - /home/cerny/logs/sk07:/home/app/logs
       - ./initdb:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: WEAez
@@ -29,6 +28,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8006:8080"
+    volumes:
+      - /home/cerny/logs/sk07:/home/app/logs
     networks:
       - cdb-network
 networks:
