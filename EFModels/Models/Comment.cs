@@ -12,4 +12,5 @@ public class Comment
     public Book Book { get; set; }
     public int UserId { get; set; }
     public User User { get; set; }
+    public double Rating { get; set; }
 }
