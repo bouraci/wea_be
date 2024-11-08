@@ -14,9 +14,10 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
-Env.Load("secret.env");
+Env.Load(".env");
 
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+
 builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     loggerConfiguration.WriteTo.Console();
