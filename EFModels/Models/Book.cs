@@ -18,8 +18,9 @@ public class Book
     public double Rating { get; set; }
     public int PageCount { get; set; }
     public int TotalRatings { get; set; }
-
+    public bool IsHidden { get; set; } = false;
     public ICollection<Comment> Comments { get; set; }
+    public ICollection<User> Users { get; set; }
 
 
     public override string ToString()

@@ -10,4 +10,11 @@ public class DatabaseContext : DbContext
     public DbSet<Book> Books { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.FavouriteBooks)
+            .WithMany(b => b.Users)
+            .UsingEntity(j => j.ToTable("UserFavouriteBooks")); // Optional: specify the join table name
+    }
 }

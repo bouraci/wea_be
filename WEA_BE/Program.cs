@@ -1,6 +1,8 @@
+using DotNetEnv;
 using EFModels.Data;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using WEA_BE.DTO;
 using WEA_BE.Models;
@@ -12,6 +14,9 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateLogger();
 
+Env.Load("secret.env");
+
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     loggerConfiguration.WriteTo.Console();
@@ -51,14 +56,42 @@ builder.Services.AddAutoMapper(cfg =>
 string csvPath = builder.Configuration.GetSection("MockDataPath").Get<string>();
 
 builder.Services.AddSingleton(new FilePathOptions { CsvPath = csvPath });
-
+builder.Services.AddSingleton(new JwtSecretKey { Key = jwtSecretKey });
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Define the security scheme
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your valid JWT token. YOU DO NOT NEED TO WRITE \"Bearer \"!!"
+    });
+
+    // Add a requirement that the scheme applies globally
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var app = builder.Build();
 

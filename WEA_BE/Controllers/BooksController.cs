@@ -13,16 +13,18 @@ public class BooksController : ControllerBase
 {
     private readonly ILogger<BooksController> _logger;
     private readonly IBookService _bookService;
+    private readonly IAuthService _authService;
 
     /// <summary>
     /// Konstruktor pro BooksController.
     /// </summary>
     /// <param name="logger">Služba pro logování chyb a informací.</param>
     /// <param name="bookService">Služba pro správu knih.</param>
-    public BooksController(ILogger<BooksController> logger, IBookService bookService)
+    public BooksController(ILogger<BooksController> logger, IBookService bookService, IAuthService authService)
     {
         _logger = logger;
         _bookService = bookService;
+        _authService = authService;
     }
 
     /// <summary>
@@ -89,6 +91,84 @@ public class BooksController : ControllerBase
     {
         var genres = _bookService.GetUniqueGenres();
         return Ok(genres);
+    }
+
+    [HttpPost("favourites/{id}")]
+    public IActionResult SetFavourite([FromRoute] int id)
+    {
+        _logger.LogInformation("Recieved request:");
+        _logger.LogInformation(Request.ToString());
+
+        var authorizationHeader = Request.Headers["Authorization"].ToString();
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+        {
+            _logger.LogWarning("Authorization header is missing or invalid");
+            return Unauthorized("Authorization token is missing or invalid");
+        }
+
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+        UserDto user = _authService.Authorize(token);
+        if (user is null)
+        {
+            _logger.LogWarning("User name not found in JWT token");
+            return Unauthorized("User is not authorized");
+        }
+
+        var result = _bookService.SetFavourite(id, user.UserName);
+        if (result)
+        {
+            _logger.LogInformation("Book with ID: {BookId} was set as favourite by user '{UserName}'", id, user.UserName);
+            return Ok("Book marked as favourite successfully");
+        }
+
+        _logger.LogWarning("Failed to set book with ID: {BookId} as favourite for user '{UserName}'", id, user.UserName);
+        return BadRequest("Could not mark book as favourite");
+    }
+
+    [HttpGet("favourites")]
+    public IActionResult GetFavourites(
+        [FromQuery] string? title,
+        [FromQuery] string? author,
+        [FromQuery] string? genre,
+        [FromQuery] int? publicationYear,
+        [FromQuery] double? minRating,
+        [FromQuery] double? maxRating,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
+    {
+        _logger.LogInformation("Recieved request:");
+        _logger.LogInformation(Request.ToString());
+
+        var authorizationHeader = Request.Headers["Authorization"].ToString();
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+        {
+            _logger.LogWarning("Authorization header is missing or invalid");
+            return Unauthorized("Authorization token is missing or invalid");
+        }
+
+        var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+        UserDto user = _authService.Authorize(token);
+        if (user is null)
+        {
+            _logger.LogWarning("User name not found in JWT token");
+            return Unauthorized("User is not authorized");
+        }
+
+        (List<BookSimpleDto> books, int totalRecords) = _bookService.GetFavouriteBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize, user.UserName);
+        var response = new BooksResponse()
+        {
+            TotalRecords = totalRecords,
+            TotalPages = (int)Math.Ceiling(totalRecords / (double)pageSize),
+            Page = page,
+            PageSize = pageSize,
+            Books = books
+        };
+
+        return Ok(response);
     }
 
 }

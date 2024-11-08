@@ -68,7 +68,7 @@ public class AuthController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        UserDto? result = await _authService.LoginAsync(loginRequestDto.UserName, loginRequestDto.Password);
+        string? result = await _authService.LoginAsync(loginRequestDto.UserName, loginRequestDto.Password);
         if (result is not null)
         {
             return Ok(result);

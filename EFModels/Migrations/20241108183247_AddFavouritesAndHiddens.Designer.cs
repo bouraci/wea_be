@@ -4,6 +4,7 @@ using EFModels.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFModels.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241108183247_AddFavouritesAndHiddens")]
+    partial class AddFavouritesAndHiddens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace EFModels.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("BookUser", b =>
-                {
-                    b.Property<int>("FavouriteBooksId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FavouriteBooksId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("UserFavouriteBooks", (string)null);
-                });
 
             modelBuilder.Entity("EFModels.Models.Book", b =>
                 {
@@ -92,7 +80,12 @@ namespace EFModels.Migrations
                     b.Property<int>("TotalRatings")
                         .HasColumnType("int");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Books");
                 });
@@ -152,19 +145,11 @@ namespace EFModels.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("BookUser", b =>
+            modelBuilder.Entity("EFModels.Models.Book", b =>
                 {
-                    b.HasOne("EFModels.Models.Book", null)
-                        .WithMany()
-                        .HasForeignKey("FavouriteBooksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("EFModels.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("FavouriteBooks")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("EFModels.Models.Comment", b =>
@@ -194,6 +179,8 @@ namespace EFModels.Migrations
             modelBuilder.Entity("EFModels.Models.User", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("FavouriteBooks");
                 });
 #pragma warning restore 612, 618
         }

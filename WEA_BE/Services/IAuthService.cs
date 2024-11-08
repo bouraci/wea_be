@@ -1,5 +1,4 @@
-﻿
-using WEA_BE.DTO;
+﻿using WEA_BE.DTO;
 
 namespace WEA_BE.Services
 {
@@ -16,13 +15,15 @@ namespace WEA_BE.Services
         /// <param name="username">Uživatelské jméno.</param>
         /// <param name="password">Heslo uživatele.</param>
         /// <returns>Vrací true, pokud registrace proběhla úspěšně, nebo false, pokud uživatel s daným uživatelským jménem již existuje.</returns>
-        Task<UserDto?> LoginAsync(string username, string password);
+        Task<string?> LoginAsync(string username, string password);
         /// <summary>
         /// Přihlašuje uživatele na základě uživatelského jména a hesla.
         /// </summary>
         /// <param name="username">Uživatelské jméno.</param>
         /// <param name="password">Heslo uživatele.</param>
-        /// <returns>Vrací DTO uživatele, pokud je přihlášení úspěšné, nebo null, pokud je přihlášení neúspěšné.</returns>
+        /// <returns>Vrací JWT token.</returns>
         Task<bool> RegisterAsync(string name, string username, string password);
+
+        public UserDto? Authorize(string token);
     }
 }
