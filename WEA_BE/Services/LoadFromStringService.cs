@@ -19,9 +19,26 @@ public static class LoadFromStringService
 
     public static async Task LoadFromString(DatabaseContext ctx, string json)
     {
-        var books = JsonSerializer.Deserialize<List<Book>>(json);
+        var books = JsonSerializer.Deserialize<IEnumerable<Book>>(json);
 
-        ctx.Books.AddRange(books);
+        List<(Book book, string isbn)> group = ctx.Books
+                .Select(x => new { Book = x, ISBN = x.ISBN13 })
+                .ToList()
+                .Select(x => (x.Book, x.ISBN))
+                .ToList();
+        var isbnSet = new HashSet<string>(group.Select(x => x.isbn));
+        foreach (var book in books)
+        {
+            if (isbnSet.Contains(book.ISBN13))
+            {
+                var oldBook = group.Single(x => x.isbn == book.ISBN13);
+                oldBook.book.IsHidden = true;
+            }
+            else
+            {
+                ctx.Add(book);
+            }
+        }
         await ctx.SaveChangesAsync();
 
     }

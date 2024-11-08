@@ -11,6 +11,7 @@ public class User
     public string PasswordHash { get; set; }
 
     public ICollection<Comment> Comments { get; set; }
+    public ICollection<Book> FavouriteBooks { get; set; } = new HashSet<Book>();
     public override string ToString()
     {
         return UserName;

@@ -11,4 +11,5 @@ public class BookSimpleDto
     public int PublicationYear { get; set; }
     public double Rating { get; set; }
     public int TotalRatings { get; set; }
+    public bool IsHidden { get; set; }
 }

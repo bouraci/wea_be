@@ -30,6 +30,8 @@ public static class LoadFromCsvService
         {
             csv.Context.RegisterClassMap<BookMap>();
             IEnumerable<Book> records = csv.GetRecords<Book>();
+
+            records = records.Where(x => ctx.Books.Select(y => y.ISBN13).Contains(x.ISBN13) == false);
             ctx.Books.AddRange(records);
             await ctx.SaveChangesAsync();
         }

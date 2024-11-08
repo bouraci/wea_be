@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Models;
+using Microsoft.EntityFrameworkCore;
 using WEA_BE.DTO;
 
 namespace WEA_BE.Services;
@@ -36,29 +38,80 @@ public class BookService : IBookService
     /// <param name="page">Číslo stránky (výchozí hodnota 1).</param>
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
+
+
+    private List<Book> filter(IEnumerable<Book> books, string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating)
+    {
+
+        if (!string.IsNullOrWhiteSpace(title))
+            books = books.Where(b => b.Title.ToLower().Contains(title.Trim().ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(author))
+            books = books.Where(b => b.Authors.ToLower().Contains(author.Trim().ToLower()));
+
+        if (!string.IsNullOrWhiteSpace(genre))
+            books = books.Where(b => b.Genre.ToLower().Contains(genre.Trim().ToLower()));
+
+        if (publicationYear is not null)
+            books = books.Where(b => b.PublicationYear == publicationYear);
+
+        if (minRating is not null)
+            books = books.Where(b => b.Rating >= minRating);
+
+        if (maxRating is not null)
+            books = books.Where(b => b.Rating <= maxRating);
+        return books.ToList();
+    }
+
+    /// Vrací seznam oblíbených knih na základě zadaných filtrů a podporuje stránkování.
+    /// </summary>
+    /// <param name="title">Název knihy (nepovinné).</param>
+    /// <param name="author">Autor knihy (nepovinné).</param>
+    /// <param name="genre">Žánr knihy (nepovinné).</param>
+    /// <param name="publicationYear">Rok vydání knihy (nepovinné).</param>
+    /// <param name="minRating">Minimální hodnocení knihy (nepovinné).</param>
+    /// <param="maxRating">Maximální hodnocení knihy (nepovinné).</param>
+    /// <param name="page">Číslo stránky (výchozí hodnota 1).</param>
+    /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
+    /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
+
     public (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize)
     {
         if (pageSize > 100) pageSize = 100;
 
-        var query = _ctx.Books.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(title))
-            query = query.Where(b => b.Title.ToLower().Contains(title.Trim().ToLower()));
+        var allBooks = _ctx.Books.Where(x => x.IsHidden == false);
+        var query = filter(allBooks, title, author, genre, publicationYear, minRating, maxRating);
 
-        if (!string.IsNullOrWhiteSpace(author))
-            query = query.Where(b => b.Authors.ToLower().Contains(author.Trim().ToLower()));
+        var totalRecords = query.Count;
 
-        if (!string.IsNullOrWhiteSpace(genre))
-            query = query.Where(b => b.Genre.ToLower().Contains(genre.Trim().ToLower()));
+        var books = query.Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList();
 
-        if (publicationYear is not null)
-            query = query.Where(b => b.PublicationYear == publicationYear);
+        var bookDtos = _mapper.Map<List<BookSimpleDto>>(books);
+        return (bookDtos, totalRecords);
+    }
 
-        if (minRating is not null)
-            query = query.Where(b => b.Rating >= minRating);
 
-        if (maxRating is not null)
-            query = query.Where(b => b.Rating <= maxRating);
+    public bool SetFavourite(int bookId, string userName)
+    {
+        var book = _ctx.Books.SingleOrDefault(x => x.Id == bookId);
+        if (book is null) return false;
+        var user = _ctx.Users.Include(u => u.FavouriteBooks).SingleOrDefault(x => x.UserName == userName);
+        if (user is null) return false;
+        user.FavouriteBooks.Add(book);
+        _ctx.SaveChanges();
+        return true;
+    }
+
+    public (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, string userName)
+    {
+        if (pageSize > 100) pageSize = 100;
+
+        var user = _ctx.Users.Include(u => u.FavouriteBooks).SingleOrDefault(x => x.UserName == userName);
+        var allBooks = _ctx.Books.Where(x => user.FavouriteBooks.Contains(x));
+        var query = filter(allBooks, title, author, genre, publicationYear, minRating, maxRating);
 
         var totalRecords = query.Count();
 
@@ -89,13 +142,13 @@ public class BookService : IBookService
     public List<string> GetUniqueGenres()
     {
         return _ctx.Books
-            .Select(b => b.Genre)                            
-            .Where(g => !string.IsNullOrWhiteSpace(g))       
-            .AsEnumerable()                                 
-            .SelectMany(g => g.Split(',', StringSplitOptions.RemoveEmptyEntries)) 
-            .Select(g => g.Trim())                           
-            .Where(g => !string.IsNullOrWhiteSpace(g))       
-            .Distinct(StringComparer.OrdinalIgnoreCase)     
+            .Select(b => b.Genre)
+            .Where(g => !string.IsNullOrWhiteSpace(g))
+            .AsEnumerable()
+            .SelectMany(g => g.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            .Select(g => g.Trim())
+            .Where(g => !string.IsNullOrWhiteSpace(g))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
     }
 }
