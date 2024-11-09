@@ -127,7 +127,7 @@ public class AuthService : IAuthService
                 return null;
             }
         }
-        var userName = jwtToken?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var userName = jwtToken?.Claims?.FirstOrDefault(c => c.Type == "username")?.Value;
 
         if (userName == null) return null;
 
@@ -139,8 +139,8 @@ public class AuthService : IAuthService
     {
         var claims = new[]
         {
-                new Claim(ClaimTypes.NameIdentifier, user.UserName),
-                new Claim(ClaimTypes.Name, user.Name)
+                new Claim("username", user.UserName),
+                new Claim("name", user.Name)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey.Key));
