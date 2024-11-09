@@ -43,7 +43,8 @@ public class CommentController : ControllerBase
         _logger.LogInformation("Received request from user: {UserName}", user.UserName);
         _logger.LogInformation("Request details: {Request}", Request.ToString());
 
-        bool result = _commentService.AddComment(commentRequest.bookId, commentRequest.content, user.UserName);
+        bool result = _commentService.AddComment(commentRequest.bookId, commentRequest.content, user.UserName, commentRequest.rating);
+
 
         if (result)
         {
