@@ -36,6 +36,14 @@ public class CommentService : ICommentService
         {
             return false;
         }
+
+        bool hasRated = HasUserRating(bookId, userName);
+        if (hasRated)
+        {
+            throw new InvalidOperationException("User has already rated this book.");
+        }
+
+
         var comment = new Comment()
         {
             Content = content,
@@ -53,5 +61,13 @@ public class CommentService : ICommentService
         }
         _ctx.SaveChanges();
         return true;
+    }
+
+    public bool HasUserRating(int bookId, string userName)
+    {
+        var user = _ctx.Users.SingleOrDefault(u => u.UserName == userName);
+        if (user == null) return false;
+
+        return _ctx.Comments.Any(c => c.BookId == bookId && c.UserId == user.Id && c.Rating > 0);
     }
 }

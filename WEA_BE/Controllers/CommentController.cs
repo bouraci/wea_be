@@ -31,7 +31,6 @@ public class CommentController : ControllerBase
         }
 
         var token = authorizationHeader.Substring("Bearer ".Length).Trim();
-
         UserDto user = _authService.Authorize(token);
 
         if (user is null)
@@ -42,6 +41,16 @@ public class CommentController : ControllerBase
 
         _logger.LogInformation("Received request from user: {UserName}", user.UserName);
         _logger.LogInformation("Request details: {Request}", Request.ToString());
+
+        if (commentRequest.rating > 0)
+        {
+            bool hasRated = _commentService.HasUserRating(commentRequest.bookId, user.UserName);
+            if (hasRated)
+            {
+                _logger.LogWarning("User {UserName} has already rated book {BookId}", user.UserName, commentRequest.bookId);
+                return BadRequest("User has already rated this book");
+            }
+        }
 
         bool result = _commentService.AddComment(commentRequest.bookId, commentRequest.content, user.UserName, commentRequest.rating);
 
