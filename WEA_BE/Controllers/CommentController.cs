@@ -54,7 +54,6 @@ public class CommentController : ControllerBase
 
         bool result = _commentService.AddComment(commentRequest.bookId, commentRequest.content, user.UserName, commentRequest.rating);
 
-
         if (result)
         {
             _logger.LogInformation("Added comment");
