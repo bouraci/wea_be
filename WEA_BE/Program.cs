@@ -50,11 +50,14 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<Book, BookDto>().ReverseMap();
     cfg.CreateMap<Book, BookSimpleDto>().ReverseMap();
     cfg.CreateMap<User, UserDto>().ReverseMap();
+    cfg.CreateMap<Address, AddressDto>().ReverseMap(); ;
     cfg.CreateMap<User, UserDetailDto>()
        .ForMember(dest => dest.FavouriteGerners, opt =>
            opt.MapFrom(src => string.IsNullOrWhiteSpace(src.FavouriteGerners)
                ? new List<string>()
                : src.FavouriteGerners.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(g => g.Trim()).ToList()))
+       .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+       .ForMember(dest => dest.BillingAddress, opt => opt.MapFrom(src => src.BillingAddress))
        .ReverseMap()
        .ForMember(dest => dest.FavouriteGerners, opt =>
            opt.MapFrom(src => src.FavouriteGerners == null

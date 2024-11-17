@@ -7,10 +7,10 @@ namespace WEA_BE.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly ILogger<CommentController> _logger;
+    private readonly ILogger<UserController> _logger;
     private readonly IAuthService _authService;
     private readonly IUserService _userService;
-    public UserController(ILogger<CommentController> logger, IAuthService authService, IUserService userService)
+    public UserController(ILogger<UserController> logger, IAuthService authService, IUserService userService)
     {
         _logger = logger;
         _authService = authService;
@@ -34,7 +34,7 @@ public class UserController : ControllerBase
             _logger.LogWarning("User name not found in JWT token");
             return Unauthorized("User is not authorized");
         }
-        bool result = _userService.UpdateUser(user.UserName, userDetailDto.Address, userDetailDto.BillingAddress, userDetailDto.ProcessData, userDetailDto.IsMale, userDetailDto.Age, userDetailDto.FavouriteGerners, userDetailDto.Refferal);
+        bool result = _userService.UpdateUser(user.UserName, userDetailDto.Address, userDetailDto.BillingAddress, userDetailDto.ProcessData, userDetailDto.IsMale, userDetailDto.Age, userDetailDto.FavouriteGerners, userDetailDto.Referral);
         if (result)
         {
             return Ok("User updated");

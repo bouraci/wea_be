@@ -8,4 +8,5 @@ public interface ICommentService
     List<CommentDto> GetComments(int bookId);
 
     public bool HasUserRating(int bookId, string userName);
+    public bool RemoveFromFavourites(int bookId, string userName);
 }

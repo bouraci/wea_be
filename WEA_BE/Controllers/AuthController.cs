@@ -46,7 +46,7 @@ public class AuthController : ControllerBase
             return UnprocessableEntity("Password must be at least 8 characters long.");
         }
 
-        bool result = await _authService.RegisterAsync(registerRequestDto.Name, registerRequestDto.UserName, registerRequestDto.Password, registerRequestDto.Address, registerRequestDto.BillingAddress, registerRequestDto.ProcessData, registerRequestDto.IsMale, registerRequestDto.Age, registerRequestDto.FavouriteGerners, registerRequestDto.Refferal);
+        bool result = await _authService.RegisterAsync(registerRequestDto.Name, registerRequestDto.UserName, registerRequestDto.Password, registerRequestDto.Address, registerRequestDto.BillingAddress, registerRequestDto.ProcessData, registerRequestDto.IsMale, registerRequestDto.Age, registerRequestDto.FavouriteGerners, registerRequestDto.Referral);
         if (result)
         {
             return StatusCode(201, "User registered successfully.");
