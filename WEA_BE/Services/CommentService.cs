@@ -36,6 +36,17 @@ public class CommentService : ICommentService
         {
             return false;
         }
+
+        if (rating > 0)
+        {
+            bool hasRated = HasUserRating(bookId, userName);
+            if (hasRated)
+            {
+                throw new InvalidOperationException("User has already rated this book.");
+            }
+        }
+
+
         var comment = new Comment()
         {
             Content = content,
@@ -45,13 +56,24 @@ public class CommentService : ICommentService
             Rating = rating
         };
         _ctx.Comments.Add(comment);
-        var book = _ctx.Books.SingleOrDefault(b => b.Id == bookId);
-        if (book != null)
+        if (rating > 0)
         {
-            book.TotalRatings++;
-            book.Rating = Math.Round((book.Rating * (book.TotalRatings - 1) + rating) / book.TotalRatings, 1);
+            var book = _ctx.Books.SingleOrDefault(b => b.Id == bookId);
+            if (book != null)
+            {
+                book.TotalRatings++;
+                book.Rating = Math.Round((book.Rating * (book.TotalRatings - 1) + rating) / book.TotalRatings, 1);
+            }
         }
         _ctx.SaveChanges();
         return true;
+    }
+
+    public bool HasUserRating(int bookId, string userName)
+    {
+        var user = _ctx.Users.SingleOrDefault(u => u.UserName == userName);
+        if (user == null) return false;
+
+        return _ctx.Comments.Any(c => c.BookId == bookId && c.UserId == user.Id && c.Rating > 0);
     }
 }
