@@ -48,4 +48,5 @@ public interface IBookService
     /// </summary>
     /// <returns>List unikátních žánrů.</returns>
     List<string> GetUniqueGenres();
+    public bool RemoveFromFavourites(int bookId, string userName);
 }

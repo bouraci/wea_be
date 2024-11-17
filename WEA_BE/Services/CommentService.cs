@@ -76,16 +76,5 @@ public class CommentService : ICommentService
 
         return _ctx.Comments.Any(c => c.BookId == bookId && c.UserId == user.Id && c.Rating > 0);
     }
-    public bool RemoveFromFavourites(int bookId, string userName)
-    {
-        var user = _ctx.Users.AsQueryable().Include(x => x.FavouriteBooks).SingleOrDefault(x => x.UserName == userName);
-        if (user is null) return false;
-        if (user.FavouriteBooks.Select(x => x.Id).Contains(bookId))
-        {
-            user.FavouriteBooks.Remove(user.FavouriteBooks.Single(x => x.Id == bookId));
-            _ctx.SaveChanges();
-            return true;
-        }
-        return false;
-    }
+
 }
