@@ -40,7 +40,7 @@ public class AuthService : IAuthService
     /// <param name="username">Uživatelské jméno.</param>
     /// <param name="password">Heslo uživatele.</param>
     /// <returns>Vrací true, pokud registrace proběhla úspěšně, nebo false, pokud uživatel s daným uživatelským jménem již existuje.</returns>
-    public async Task<bool> RegisterAsync(string name, string username, string password, string? address, string? billingAddress, bool? processData, bool? isMale, int? age, List<string> FavouriteGerners, string? refferal)
+    public async Task<bool> RegisterAsync(string name, string username, string password, AddressDto? address, AddressDto? billingAddress, bool? processData, bool? isMale, int? age, List<string> FavouriteGerners, string? referral)
     {
         if (await _ctx.Users.AnyAsync(u => u.UserName == username))
         {
@@ -59,13 +59,13 @@ public class AuthService : IAuthService
             Name = name,
             UserName = username,
             PasswordHash = Convert.ToBase64String(salt) + ":" + passwordHash,
-            Address = address,
-            BillingAddress = billingAddress,
+            Address = _mapper.Map<Address>(address),
+            BillingAddress = _mapper.Map<Address>(billingAddress),
             ProcessData = processData,
             IsMale = isMale,
             Age = age,
             FavouriteGerners = FavouriteGerners.Any() ? string.Join(",", FavouriteGerners) : null,
-            Refferal = refferal
+            Referral = referral
         };
 
         _ctx.Users.Add(user);
