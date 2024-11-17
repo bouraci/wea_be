@@ -40,15 +40,12 @@ public class AuthService : IAuthService
     /// <param name="username">Uživatelské jméno.</param>
     /// <param name="password">Heslo uživatele.</param>
     /// <returns>Vrací true, pokud registrace proběhla úspěšně, nebo false, pokud uživatel s daným uživatelským jménem již existuje.</returns>
-    public async Task<bool> RegisterAsync(string name, string username, string password)
+    public async Task<bool> RegisterAsync(string name, string username, string password, string? address, string? billingAddress, bool? processData, bool? isMale, int? age, List<string> FavouriteGerners, string? refferal)
     {
         if (await _ctx.Users.AnyAsync(u => u.UserName == username))
         {
             return false;
         }
-
-
-
         byte[] salt = new byte[16];
         using (var rng = RandomNumberGenerator.Create())
         {
@@ -61,7 +58,14 @@ public class AuthService : IAuthService
         {
             Name = name,
             UserName = username,
-            PasswordHash = Convert.ToBase64String(salt) + ":" + passwordHash
+            PasswordHash = Convert.ToBase64String(salt) + ":" + passwordHash,
+            Address = address,
+            BillingAddress = billingAddress,
+            ProcessData = processData,
+            IsMale = isMale,
+            Age = age,
+            FavouriteGerners = FavouriteGerners.Any() ? string.Join(",", FavouriteGerners) : null,
+            Refferal = refferal
         };
 
         _ctx.Users.Add(user);

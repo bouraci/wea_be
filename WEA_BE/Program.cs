@@ -50,6 +50,16 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<Book, BookDto>().ReverseMap();
     cfg.CreateMap<Book, BookSimpleDto>().ReverseMap();
     cfg.CreateMap<User, UserDto>().ReverseMap();
+    cfg.CreateMap<User, UserDetailDto>()
+       .ForMember(dest => dest.FavouriteGerners, opt =>
+           opt.MapFrom(src => string.IsNullOrWhiteSpace(src.FavouriteGerners)
+               ? new List<string>()
+               : src.FavouriteGerners.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(g => g.Trim()).ToList()))
+       .ReverseMap()
+       .ForMember(dest => dest.FavouriteGerners, opt =>
+           opt.MapFrom(src => src.FavouriteGerners == null
+               ? null
+               : string.Join(",", src.FavouriteGerners)));
     cfg.CreateMap<Comment, CommentDto>()
        .ForMember(dest => dest.CreatorUserName, opt => opt.MapFrom(src => src.User.UserName))
        .ReverseMap();
@@ -61,6 +71,7 @@ builder.Services.AddSingleton(new JwtSecretKey { Key = jwtSecretKey });
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

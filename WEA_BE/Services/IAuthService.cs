@@ -22,7 +22,7 @@ namespace WEA_BE.Services
         /// <param name="username">Uživatelské jméno.</param>
         /// <param name="password">Heslo uživatele.</param>
         /// <returns>Vrací JWT token.</returns>
-        Task<bool> RegisterAsync(string name, string username, string password);
+        Task<bool> RegisterAsync(string name, string username, string password, string? address, string? billingAddress, bool? processData, bool? isMale, int? age, List<string> FavouriteGerners, string? refferal);
 
         public UserDto? Authorize(string token);
     }

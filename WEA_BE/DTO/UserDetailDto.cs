@@ -1,12 +1,7 @@
 ﻿namespace WEA_BE.DTO;
 
-public class RegisterRequestDto
+public class UserDetailDto
 {
-    public required string Name { get; set; }
-
-    public required string UserName { get; set; }
-
-    public required string Password { get; set; }
     public string? Address { get; set; }
     public string? BillingAddress { get; set; }
     public bool? ProcessData { get; set; }
