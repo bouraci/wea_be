@@ -1,14 +1,23 @@
-﻿using EFModels.Data;
+﻿using AutoMapper;
+using EFModels.Data;
 using EFModels.Models;
 using System.Text.Json;
+using WEA_BE.DTO;
 
 namespace WEA_BE.Services;
 
 /// <summary>
 /// Statická třída poskytující službu pro načítání dat knih z JSON řetězce.
 /// </summary>
-public static class LoadFromStringService
+public class LoadFromStringService
 {
+    private readonly DatabaseContext _ctx;
+    private readonly IMapper _mapper;
+    public LoadFromStringService(DatabaseContext ctx, IMapper mapper)
+    {
+        _ctx = ctx;
+        _mapper = mapper;
+    }
     /// <summary>
     /// Načte data knih z řetězce ve formátu JSON a uloží je do databáze.
     /// </summary>
@@ -17,13 +26,12 @@ public static class LoadFromStringService
     /// <returns>Asynchronní úloha, která indikuje, kdy bylo načtení a uložení dat dokončeno.</returns>
     /// <exception cref="JsonException">Vyvolá se, pokud dojde k chybě při deserializaci JSON řetězce.</exception>
 
-    public static async Task LoadFromString(DatabaseContext ctx, string json)
+    public async Task LoadFromString(List<CdbBookDto> data)
     {
-        var books = JsonSerializer.Deserialize<IEnumerable<Book>>(json);
-
-        List<(Book book, string isbn)> group = ctx.Books
+        var books = _mapper.Map<List<Book>>(data);
+        List<(Book book, string isbn)> group = _ctx.Books
                 .Select(x => new { Book = x, ISBN = x.ISBN13 })
-                .ToList()
+                .AsEnumerable()
                 .Select(x => (x.Book, x.ISBN))
                 .ToList();
         var isbnSet = new HashSet<string>(group.Select(x => x.isbn));
@@ -36,10 +44,10 @@ public static class LoadFromStringService
             }
             else
             {
-                ctx.Add(book);
+                _ctx.Add(book);
             }
         }
-        await ctx.SaveChangesAsync();
+        await _ctx.SaveChangesAsync();
 
     }
 }

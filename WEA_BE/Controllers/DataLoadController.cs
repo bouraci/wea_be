@@ -1,5 +1,6 @@
 ﻿using EFModels.Data;
 using Microsoft.AspNetCore.Mvc;
+using WEA_BE.DTO;
 using WEA_BE.Models;
 using WEA_BE.Services;
 
@@ -13,8 +14,9 @@ namespace WEA_BE.Controllers;
 public class DataLoadController : ControllerBase
 {
     private readonly ILogger<DataLoadController> _logger;
-    private readonly DatabaseContext _ctx;
     private readonly FilePathOptions _options;
+    private readonly LoadFromCsvService _loadFromCsvService;
+    private readonly LoadFromStringService _loadFromStringService;
 
     /// <summary>
     /// Konstruktor pro DataLoadController.
@@ -22,11 +24,13 @@ public class DataLoadController : ControllerBase
     /// <param name="logger">Služba pro logování chyb a informací.</param>
     /// <param name="ctx">Databázový kontext pro manipulaci s daty.</param>
     /// <param name="options">Možnosti nastavení cesty k souborům.</param>
-    public DataLoadController(ILogger<DataLoadController> logger, DatabaseContext ctx, FilePathOptions options)
+    public DataLoadController(ILogger<DataLoadController> logger, DatabaseContext ctx, FilePathOptions options, LoadFromCsvService loadFromCsvService, LoadFromStringService loadFromStringService)
     {
         _logger = logger;
-        _ctx = ctx;
         _options = options;
+        _loadFromCsvService = loadFromCsvService;
+        _loadFromStringService = loadFromStringService;
+
     }
 
     /// <summary>
@@ -38,7 +42,7 @@ public class DataLoadController : ControllerBase
     {
         try
         {
-            await LoadFromCsvService.LoadFromCSV(_options.CsvPath, _ctx);
+            await _loadFromCsvService.LoadFromCSV(_options.CsvPath);
             return Ok("Data loaded successfully from CSV file.");
         }
         catch (Exception ex)
@@ -54,16 +58,16 @@ public class DataLoadController : ControllerBase
     /// <param name="data">Řetězec obsahující data ve formátu JSON.</param>
     /// <returns>Vrací zprávu o úspěšném načtení nebo chybový stav.</returns>
     [HttpPost("cdb")]
-    public async Task<IActionResult> LoadFromString([FromBody] string data)
+    public async Task<IActionResult> LoadFromString([FromBody] List<CdbBookDto> data)
     {
-        if (string.IsNullOrWhiteSpace(data))
+        if (!data.Any())
         {
             return BadRequest("No data provided.");
         }
 
         try
         {
-            await LoadFromStringService.LoadFromString(_ctx, data);
+            await _loadFromStringService.LoadFromString(data);
             return Ok("Data loaded successfully from string.");
         }
         catch (Exception ex)
