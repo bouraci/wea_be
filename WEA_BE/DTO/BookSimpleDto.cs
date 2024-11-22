@@ -12,4 +12,5 @@ public class BookSimpleDto
     public double Rating { get; set; }
     public int TotalRatings { get; set; }
     public bool IsHidden { get; set; }
+    public double? Price { get; set; }
 }

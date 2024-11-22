@@ -16,5 +16,6 @@ public class BookDto
     public int PageCount { get; set; }
     public int TotalRatings { get; set; }
     public bool IsHidden { get; set; }
+    public double? Price { get; set; }
     public List<CommentDto> comments { get; set; }
 }
