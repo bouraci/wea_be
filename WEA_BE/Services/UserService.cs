@@ -49,7 +49,7 @@ public class UserService : IUserService
 
     public UserDetailDto? GetUserDetail(string userName)
     {
-        var user = _ctx.Users.AsQueryable().Include(x => x.BillingAddress).Include(x => x.Address).SingleOrDefault(x => x.UserName == userName);
+        var user = _ctx.Users.AsQueryable().Include(x => x.BillingAddress).Include(x => x.Address).Include(x => x.FavouriteGerners).SingleOrDefault(x => x.UserName == userName);
         if (user is null) return null;
         var dto = _mapper.Map<UserDetailDto>(user);
         return dto;
