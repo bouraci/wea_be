@@ -31,6 +31,7 @@ public class UserService : IUserService
         List<Genre> genres = new List<Genre>();
         foreach (var genre in FavouriteGerners)
         {
+
             Genre dbGenre = _ctx.Genres.SingleOrDefault(x => x.Name == genre);
             if (dbGenre is null)
             {
