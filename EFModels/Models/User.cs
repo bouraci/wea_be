@@ -13,7 +13,7 @@ public class User
     public Address? BillingAddress { get; set; }
     public bool? ProcessData { get; set; }
     public bool? IsMale { get; set; } //Genesis 1:27
-    public DateTime? Age { get; set; }
+    public DateTime? BirthDay { get; set; }
     public string? FavouriteGerners { get; set; }
     public string? Referral { get; set; }
 
