@@ -19,7 +19,7 @@ public class Book
     public int PageCount { get; set; }
     public int TotalRatings { get; set; }
     public bool IsHidden { get; set; } = false;
-    public float? Price { get; set; }
+    public double? Price { get; set; }
     public ICollection<Comment> Comments { get; set; }
     public ICollection<User> Users { get; set; }
 

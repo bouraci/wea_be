@@ -14,4 +14,5 @@ public class CdbBookDto
     public double Rating { get; set; }
     public int PageCount { get; set; }
     public int TotalRatings { get; set; }
+    public double Price { get; set; }
 }

@@ -34,7 +34,7 @@ public class UserController : ControllerBase
             _logger.LogWarning("User name not found in JWT token");
             return Unauthorized("User is not authorized");
         }
-        bool result = _userService.UpdateUser(user.UserName, userDetailDto.Address, userDetailDto.BillingAddress, userDetailDto.ProcessData, userDetailDto.IsMale, userDetailDto.Age, userDetailDto.FavouriteGerners, userDetailDto.Referral);
+        bool result = _userService.UpdateUser(user.UserName, userDetailDto.Address, userDetailDto.BillingAddress, userDetailDto.ProcessData, userDetailDto.IsMale, userDetailDto.birthDay, userDetailDto.FavouriteGerners, userDetailDto.Referral);
         if (result)
         {
             return Ok("User updated");
