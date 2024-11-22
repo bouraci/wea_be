@@ -42,10 +42,7 @@ public class LoadFromStringService
                 var oldBook = group.Single(x => x.isbn == book.ISBN13);
                 oldBook.book.IsHidden = true;
             }
-            else
-            {
-                _ctx.Add(book);
-            }
+            _ctx.Add(book);
         }
         await _ctx.SaveChangesAsync();
 

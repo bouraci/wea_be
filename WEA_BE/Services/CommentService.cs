@@ -59,7 +59,7 @@ public class CommentService : ICommentService
         if (rating > 0)
         {
             var book = _ctx.Books.SingleOrDefault(b => b.Id == bookId);
-            if (book != null)
+            if (book is not null)
             {
                 book.TotalRatings++;
                 book.Rating = Math.Round((book.Rating * (book.TotalRatings - 1) + rating) / book.TotalRatings, 1);

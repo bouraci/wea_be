@@ -135,7 +135,7 @@ public class AuthService : IAuthService
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
         var expirationClaim = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Exp)?.Value;
-        if (expirationClaim != null)
+        if (expirationClaim is not null)
         {
             var expirationTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expirationClaim));
             if (expirationTime < DateTimeOffset.UtcNow)
