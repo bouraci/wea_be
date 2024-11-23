@@ -4,6 +4,5 @@ public class CommentRequestDto
 {
     public string content { get; set; }
     public int bookId { get; set; }
-    public string userName { get; set; }
     public double rating { get; set; }
 }

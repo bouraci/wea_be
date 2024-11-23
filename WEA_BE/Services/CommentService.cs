@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using WEA_BE.DTO;
@@ -10,18 +11,12 @@ public class CommentService : ICommentService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
-    public CommentService(DatabaseContext ctx, IMapper mapper)
+    private readonly IAuditService _auditService;
+    public CommentService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
     {
         _ctx = ctx;
         _mapper = mapper;
-    }
-    public List<CommentDto> GetComments(int bookId)
-    {
-        IEnumerable<Comment> comments = _ctx.Comments
-            .Where(comment => comment.BookId == bookId)
-            .Include(x => x.User);
-        var commentsDtos = _mapper.Map<List<CommentDto>>(comments);
-        return commentsDtos;
+        _auditService = auditService;
     }
 
     public bool AddComment(int bookId, string content, string userName, double rating)
@@ -37,15 +32,7 @@ public class CommentService : ICommentService
             return false;
         }
 
-        if (rating > 0)
-        {
-            bool hasRated = HasUserRating(bookId, userName);
-            if (hasRated)
-            {
-                throw new InvalidOperationException("User has already rated this book.");
-            }
-        }
-
+        var oldbook = _ctx.Books.AsQueryable().Include(x => x.Comments).SingleOrDefault(b => b.Id == bookId);
 
         var comment = new Comment()
         {
@@ -56,9 +43,9 @@ public class CommentService : ICommentService
             Rating = rating
         };
         _ctx.Comments.Add(comment);
+        var book = _ctx.Books.AsQueryable().Include(x => x.Comments).SingleOrDefault(b => b.Id == bookId);
         if (rating > 0)
         {
-            var book = _ctx.Books.SingleOrDefault(b => b.Id == bookId);
             if (book is not null)
             {
                 book.TotalRatings++;
@@ -66,6 +53,9 @@ public class CommentService : ICommentService
             }
         }
         _ctx.SaveChanges();
+
+        _auditService.LogAudit(_mapper.Map<List<CommentDto>>(oldbook.Comments), _mapper.Map<List<CommentDto>>(book.Comments), LogType.AddComment, user.UserName);
+
         return true;
     }
 

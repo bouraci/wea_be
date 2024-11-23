@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using WEA_BE.DTO;
@@ -10,15 +11,18 @@ public class UserService : IUserService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
-    public UserService(DatabaseContext ctx, IMapper mapper)
+    private readonly IAuditService _auditService;
+    public UserService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
     {
         _ctx = ctx;
         _mapper = mapper;
+        _auditService = auditService;
     }
     public bool UpdateUser(string userName, AddressDto? address, AddressDto? billingAddress, bool? processData, bool? isMale, DateTime? birthDay, List<string> FavouriteGerners, string? referral)
     {
         var user = _ctx.Users.AsQueryable().Include(x => x.BillingAddress).Include(x => x.Address).SingleOrDefault(x => x.UserName == userName);
         if (user == null) return false;
+        var oldUser = _mapper.Map<UserDetailDto>(user);
         user.Address = _mapper.Map<Address>(address);
         user.BillingAddress = _mapper.Map<Address>(billingAddress);
         user.ProcessData = processData;
@@ -45,6 +49,9 @@ public class UserService : IUserService
         user.FavouriteGerners = genres;
         user.Referral = referral;
         _ctx.SaveChanges();
+
+        _auditService.LogAudit(oldUser, _mapper.Map<UserDetailDto>(user), LogType.UpdateUserDetail, user.UserName);
+
         return true;
     }
 

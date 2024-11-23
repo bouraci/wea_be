@@ -12,6 +12,7 @@ public class DatabaseContext : DbContext
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Genre> Genres { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<AuditLog> AuditLogs { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()

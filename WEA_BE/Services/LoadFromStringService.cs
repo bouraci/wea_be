@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using System.Text.Json;
 using WEA_BE.DTO;
@@ -13,10 +14,12 @@ public class LoadFromStringService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
-    public LoadFromStringService(DatabaseContext ctx, IMapper mapper)
+    private readonly IAuditService _auditService;
+    public LoadFromStringService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
     {
         _ctx = ctx;
         _mapper = mapper;
+        _auditService = auditService;
     }
     /// <summary>
     /// Načte data knih z řetězce ve formátu JSON a uloží je do databáze.
@@ -45,6 +48,6 @@ public class LoadFromStringService
             _ctx.Add(book);
         }
         await _ctx.SaveChangesAsync();
-
+        _auditService.LogAudit("", _mapper.Map<List<BookDto>>(books), LogType.LoadCdb, "cdb");
     }
 }
