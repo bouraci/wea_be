@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using WEA_BE.DTO;
@@ -10,10 +11,12 @@ public class OrderService : IOrderService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
-    public OrderService(DatabaseContext ctx, IMapper mapper)
+    private readonly IAuditService _auditService;
+    public OrderService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
     {
         _ctx = ctx;
         _mapper = mapper;
+        _auditService = auditService;
     }
     private bool CanUserOrder(User user)
     {
@@ -51,6 +54,10 @@ public class OrderService : IOrderService
         };
         _ctx.Orders.Add(order);
         _ctx.SaveChanges();
+
+
+        _auditService.LogAudit("", _mapper.Map<OrderDto>(order), LogType.AddOrder, user.UserName);
+
         return true;
     }
 

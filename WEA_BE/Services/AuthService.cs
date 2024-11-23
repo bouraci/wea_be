@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,17 +21,19 @@ public class AuthService : IAuthService
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
     private readonly JwtSecretKey _secretKey;
+    private readonly IAuditService _auditService;
 
     /// <summary>
     /// Konstruktor služby autentizace, který přijímá kontext databáze a mapper pro mapování objektů.
     /// </summary>
     /// <param name="ctx">Kontext databáze pro přístup k uživatelům.</param>
     /// <param name="mapper">Automapper pro mapování mezi entitami a DTO.</param>
-    public AuthService(DatabaseContext ctx, IMapper mapper, JwtSecretKey secretKey)
+    public AuthService(DatabaseContext ctx, IMapper mapper, JwtSecretKey secretKey, IAuditService auditService)
     {
         _ctx = ctx;
         _mapper = mapper;
         _secretKey = secretKey;
+        _auditService = auditService;
     }
 
     /// <summary>
@@ -79,9 +82,10 @@ public class AuthService : IAuthService
             FavouriteGerners = genres,
             Referral = referral
         };
-
         _ctx.Users.Add(user);
         await _ctx.SaveChangesAsync();
+
+        _auditService.LogAudit("", new { User = _mapper.Map<UserDto>(user), Detail = _mapper.Map<UserDetailDto>(user) }, LogType.RegisterUser, user.UserName);
 
         return true;
     }

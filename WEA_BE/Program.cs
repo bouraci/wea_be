@@ -56,6 +56,7 @@ builder.Services.AddAutoMapper(cfg =>
         .ForMember(dest => dest.Id, opt => opt.Ignore());
     cfg.CreateMap<Book, BookDto>().ReverseMap();
     cfg.CreateMap<Book, BookSimpleDto>().ReverseMap();
+    cfg.CreateMap<AuditLog, AuditLogDto>().ReverseMap();
     cfg.CreateMap<Order, OrderDto>().ReverseMap();
     cfg.CreateMap<User, UserDto>().ReverseMap();
     cfg.CreateMap<Address, AddressDto>().ReverseMap();
@@ -79,6 +80,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<LoadFromStringService>();
 builder.Services.AddScoped<LoadFromCsvService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

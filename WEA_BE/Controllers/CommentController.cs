@@ -51,8 +51,9 @@ public class CommentController : ControllerBase
                 return BadRequest("User has already rated this book");
             }
         }
-
         bool result = _commentService.AddComment(commentRequest.bookId, commentRequest.content, user.UserName, commentRequest.rating);
+
+
 
         if (result)
         {

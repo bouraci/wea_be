@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
 using WEA_BE.DTO;
@@ -13,18 +14,18 @@ public class BookService : IBookService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
-    private readonly ICommentService _commentService;
+    private readonly IAuditService _auditService;
 
     /// <summary>
     /// Konstruktor pro inicializaci služby s kontextem databáze a mapováním objektů.
     /// </summary>
     /// <param name="ctx">Kontext databáze pro přístup k datům knih.</param>
     /// <param name="mapper">Automapper pro mapování mezi entitami a DTO.</param>
-    public BookService(DatabaseContext ctx, IMapper mapper, ICommentService commentService)
+    public BookService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
     {
         _ctx = ctx;
         _mapper = mapper;
-        _commentService = commentService;
+        _auditService = auditService;
     }
 
     /// Vrací seznam knih na základě zadaných filtrů a podporuje stránkování.
@@ -102,6 +103,9 @@ public class BookService : IBookService
         if (user is null) return false;
         user.FavouriteBooks.Add(book);
         _ctx.SaveChanges();
+
+        _auditService.LogAudit("", _mapper.Map<BookDto>(book), LogType.AddToFavourites, user.UserName);
+
         return true;
     }
 
@@ -130,9 +134,8 @@ public class BookService : IBookService
     /// <returns>DTO objekt knihy.</returns>
     public BookDto GetBookById(int id)
     {
-        var book = _ctx.Books.SingleOrDefault(x => x.Id == id);
+        var book = _ctx.Books.AsQueryable().Include(x => x.Comments).SingleOrDefault(x => x.Id == id);
         var bookDtos = _mapper.Map<BookDto>(book);
-        bookDtos.comments = _commentService.GetComments(id);
         return bookDtos;
     }
     /// <summary>
@@ -157,8 +160,12 @@ public class BookService : IBookService
         if (user is null) return false;
         if (user.FavouriteBooks.Select(x => x.Id).Contains(bookId))
         {
-            user.FavouriteBooks.Remove(user.FavouriteBooks.Single(x => x.Id == bookId));
+            var book = user.FavouriteBooks.Single(x => x.Id == bookId);
+            user.FavouriteBooks.Remove(book);
             _ctx.SaveChanges();
+
+            _auditService.LogAudit("", _mapper.Map<BookDto>(book), LogType.RemoveFromFavourites, user.UserName);
+
             return true;
         }
         return false;

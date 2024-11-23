@@ -1,8 +1,11 @@
-﻿using CsvHelper;
+﻿using AutoMapper;
+using CsvHelper;
 using CsvHelper.Configuration;
 using EFModels.Data;
+using EFModels.Enums;
 using EFModels.Models;
 using System.Globalization;
+using WEA_BE.DTO;
 using WEA_BE.Models;
 
 namespace WEA_BE.Services;
@@ -13,9 +16,13 @@ namespace WEA_BE.Services;
 public class LoadFromCsvService
 {
     private readonly DatabaseContext _ctx;
-    public LoadFromCsvService(DatabaseContext ctx)
+    private readonly IAuditService _auditService;
+    private readonly IMapper _mapper;
+    public LoadFromCsvService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
     {
         _ctx = ctx;
+        _mapper = mapper;
+        _auditService = auditService;
     }
     /// <summary>
     /// Načte data knih z CSV souboru a uloží je do databáze.
@@ -40,6 +47,8 @@ public class LoadFromCsvService
             records = records.Where(x => _ctx.Books.Select(y => y.ISBN13).Contains(x.ISBN13) == false);
             _ctx.Books.AddRange(records);
             await _ctx.SaveChangesAsync();
+
+            _auditService.LogAudit("", _mapper.Map<List<BookDto>>(records), LogType.LoadCsv);
         }
     }
 }
