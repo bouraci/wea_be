@@ -17,12 +17,15 @@ public class OrderService : IOrderService
     }
     private bool CanUserOrder(User user)
     {
-        return user.Address is not null &&
+        if (user.Address is not null &&
                user.BillingAddress is not null &&
                user.ProcessData.HasValue &&
                user.IsMale.HasValue &&
-               user.BirthDay.HasValue &&
-               user.Referral is not null;
+               user.BirthDay.HasValue)
+        {
+            return (bool)user.ProcessData;
+        }
+        return false;
     }
     public bool AddOrder(string username, List<int> bookIds)
     {
@@ -33,7 +36,7 @@ public class OrderService : IOrderService
         foreach (int id in bookIds)
         {
             var book = _ctx.Books.SingleOrDefault(x => x.Id == id);
-            if (book is not null && book.Price is not null)
+            if (book is not null && book.Price is not null && !book.IsHidden)
             {
                 books.Add(book);
             }
