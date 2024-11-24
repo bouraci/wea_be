@@ -17,8 +17,10 @@ public interface IBookService
     /// <param="maxRating">Maximální hodnocení knihy (nepovinné).</param>
     /// <param name="page">Číslo stránky (výchozí hodnota 1).</param>
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
+    /// <param name="minPrice">Minimální cena pro filtrování</param>
+    /// <param name="minPrice">Maximální cena pro filtrování</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
-    (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize);
+    (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, decimal? minPrice, decimal? maxPrice);
 
     /// Vrací seznam oblíbených knih na základě zadaných filtrů a podporuje stránkování.
     /// </summary>
@@ -28,11 +30,13 @@ public interface IBookService
     /// <param name="publicationYear">Rok vydání knihy (nepovinné).</param>
     /// <param name="minRating">Minimální hodnocení knihy (nepovinné).</param>
     /// <param="maxRating">Maximální hodnocení knihy (nepovinné).</param>
+    /// <param name="minPrice">Minimální cena pro filtrování</param>
+    /// <param name="minPrice">Maximální cena pro filtrování</param>
     /// <param name="page">Číslo stránky (výchozí hodnota 1).</param>
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
 
-    (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, string userName);
+    (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, decimal? minPrice, decimal? maxPrice, int page, int pageSize, string userName);
 
     bool SetFavourite(int bookId, string userName);
 
