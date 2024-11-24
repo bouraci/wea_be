@@ -36,6 +36,8 @@ public class BooksController : ControllerBase
     /// <param name="publicationYear">Rok vydání knihy pro filtrování.</param>
     /// <param name="minRating">Minimální hodnocení pro filtrování.</param>
     /// <param name="maxRating">Maximální hodnocení pro filtrování.</param>
+    /// <param name="minPrice">Minimální cena pro filtrování</param>
+    /// <param name="minPrice">Maximální cena pro filtrování</param>
     /// <param name="page">Číslo stránky pro stránkování (výchozí hodnota je 1).</param>
     /// <param name="pageSize">Velikost stránky pro stránkování (výchozí hodnota je 10).</param>
     /// <returns>Vrací seznam knih s informacemi o stránkování.</returns>
@@ -48,12 +50,14 @@ public class BooksController : ControllerBase
         [FromQuery] int? publicationYear,
         [FromQuery] double? minRating,
         [FromQuery] double? maxRating,
+        [FromQuery] double? minPrice,
+        [FromQuery] double? maxPrice,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
         _logger.LogInformation("Recieved request:");
         _logger.LogInformation(Request.ToString());
-        (List<BookSimpleDto> books, int totalRecords) = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize);
+        (List<BookSimpleDto> books, int totalRecords) = _bookService.GetBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize, minPrice, maxPrice);
         var response = new BooksResponse()
         {
             TotalRecords = totalRecords,
@@ -135,6 +139,8 @@ public class BooksController : ControllerBase
         [FromQuery] int? publicationYear,
         [FromQuery] double? minRating,
         [FromQuery] double? maxRating,
+        [FromQuery] double? minPrice,
+        [FromQuery] double? maxPrice,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
@@ -158,7 +164,7 @@ public class BooksController : ControllerBase
             return Unauthorized("User is not authorized");
         }
 
-        (List<BookSimpleDto> books, int totalRecords) = _bookService.GetFavouriteBooks(title, author, genre, publicationYear, minRating, maxRating, page, pageSize, user.UserName);
+        (List<BookSimpleDto> books, int totalRecords) = _bookService.GetFavouriteBooks(title, author, genre, publicationYear, minRating, maxRating, minPrice, maxPrice, page, pageSize, user.UserName);
         var response = new BooksResponse()
         {
             TotalRecords = totalRecords,

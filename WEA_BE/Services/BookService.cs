@@ -41,7 +41,7 @@ public class BookService : IBookService
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
 
 
-    private List<Book> filter(IEnumerable<Book> books, string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating)
+    private List<Book> filter(IQueryable<Book> books, string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, double? minPrice, double? maxPrice)
     {
 
         if (!string.IsNullOrWhiteSpace(title))
@@ -61,6 +61,15 @@ public class BookService : IBookService
 
         if (maxRating is not null)
             books = books.Where(b => b.Rating <= maxRating);
+
+        if (minPrice.HasValue)
+            books = books.Where(b => (double?)b.Price >= minPrice.Value);
+
+        if (maxPrice.HasValue)
+            books = books.Where(b => (double?)b.Price <= maxPrice.Value);
+
+
+
         return books.ToList();
     }
 
@@ -76,15 +85,15 @@ public class BookService : IBookService
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
 
-    public (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize)
+    public (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, double? minPrice, double? maxPrice)
     {
         if (pageSize > 100) pageSize = 100;
 
 
         var allBooks = _ctx.Books.Where(x => x.IsHidden == false);
-        var query = filter(allBooks, title, author, genre, publicationYear, minRating, maxRating);
+        var query = filter(allBooks, title, author, genre, publicationYear, minRating, maxRating, minPrice, maxPrice);
 
-        var totalRecords = query.Count;
+        var totalRecords = query.Count();
 
         var books = query.Skip((page - 1) * pageSize)
                          .Take(pageSize)
@@ -109,13 +118,17 @@ public class BookService : IBookService
         return true;
     }
 
-    public (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, string userName)
+    public (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, double? minPrice, double? maxPrice, int page, int pageSize, string userName)
     {
         if (pageSize > 100) pageSize = 100;
 
-        var user = _ctx.Users.Include(u => u.FavouriteBooks).SingleOrDefault(x => x.UserName == userName);
+        var user = _ctx.Users
+                      .Include(u => u.FavouriteBooks)
+                      .SingleOrDefault(x => x.UserName == userName);
+
         var allBooks = _ctx.Books.Where(x => user.FavouriteBooks.Contains(x));
-        var query = filter(allBooks, title, author, genre, publicationYear, minRating, maxRating);
+
+        var query = filter(allBooks, title, author, genre, publicationYear, minRating, maxRating, minPrice, maxPrice);
 
         var totalRecords = query.Count();
 
