@@ -50,8 +50,8 @@ public class BooksController : ControllerBase
         [FromQuery] int? publicationYear,
         [FromQuery] double? minRating,
         [FromQuery] double? maxRating,
-        [FromQuery] decimal? minPrice,
-        [FromQuery] decimal? maxPrice,
+        [FromQuery] double? minPrice,
+        [FromQuery] double? maxPrice,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
@@ -139,8 +139,8 @@ public class BooksController : ControllerBase
         [FromQuery] int? publicationYear,
         [FromQuery] double? minRating,
         [FromQuery] double? maxRating,
-        [FromQuery] decimal? minPrice,
-        [FromQuery] decimal? maxPrice,
+        [FromQuery] double? minPrice,
+        [FromQuery] double? maxPrice,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {

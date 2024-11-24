@@ -41,7 +41,7 @@ public class BookService : IBookService
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
 
 
-    private List<Book> filter(IQueryable<Book> books, string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, decimal? minPrice, decimal? maxPrice)
+    private List<Book> filter(IQueryable<Book> books, string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, double? minPrice, double? maxPrice)
     {
 
         if (!string.IsNullOrWhiteSpace(title))
@@ -63,10 +63,10 @@ public class BookService : IBookService
             books = books.Where(b => b.Rating <= maxRating);
 
         if (minPrice.HasValue)
-            books = books.Where(b => (decimal?)b.Price >= minPrice.Value);
+            books = books.Where(b => (double?)b.Price >= minPrice.Value);
 
         if (maxPrice.HasValue)
-            books = books.Where(b => (decimal?)b.Price <= maxPrice.Value);
+            books = books.Where(b => (double?)b.Price <= maxPrice.Value);
 
 
 
@@ -85,7 +85,7 @@ public class BookService : IBookService
     /// <param name="pageSize">Počet položek na stránku (maximálně 100).</param>
     /// <returns>Seznam knih včetně celkového počtu záznamů.</returns>
 
-    public (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, decimal? minPrice, decimal? maxPrice)
+    public (List<BookSimpleDto>, int totalRecords) GetBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, int page, int pageSize, double? minPrice, double? maxPrice)
     {
         if (pageSize > 100) pageSize = 100;
 
@@ -118,7 +118,7 @@ public class BookService : IBookService
         return true;
     }
 
-    public (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, decimal? minPrice, decimal? maxPrice, int page, int pageSize, string userName)
+    public (List<BookSimpleDto>, int totalRecords) GetFavouriteBooks(string? title, string? author, string? genre, int? publicationYear, double? minRating, double? maxRating, double? minPrice, double? maxPrice, int page, int pageSize, string userName)
     {
         if (pageSize > 100) pageSize = 100;
 
