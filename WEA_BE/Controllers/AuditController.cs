@@ -7,9 +7,9 @@ namespace WEA_BE.Controllers;
 public class AuditController : ControllerBase
 {
     private readonly IAuditService _auditService;
-    private readonly ILogger<CommentController> _logger;
+    private readonly ILogger<AuditController> _logger;
 
-    public AuditController(IAuditService auditService, ILogger<CommentController> logger)
+    public AuditController(IAuditService auditService, ILogger<AuditController> logger)
     {
         _auditService = auditService;
         _logger = logger;
