@@ -147,7 +147,7 @@ public class BookService : IBookService
     /// <returns>DTO objekt knihy.</returns>
     public BookDto GetBookById(int id)
     {
-        var book = _ctx.Books.AsQueryable().Include(x => x.Comments).SingleOrDefault(x => x.Id == id);
+        var book = _ctx.Books.AsQueryable().Include(x => x.Comments).ThenInclude(x => x.User).SingleOrDefault(x => x.Id == id);
         var bookDtos = _mapper.Map<BookDto>(book);
         return bookDtos;
     }
