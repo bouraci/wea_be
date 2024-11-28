@@ -19,5 +19,8 @@ public class DatabaseContext : DbContext
             .HasMany(u => u.FavouriteBooks)
             .WithMany(b => b.Users)
             .UsingEntity(j => j.ToTable("UserFavouriteBooks")); // Optional: specify the join table name
+        modelBuilder.Entity<Order>()
+        .HasMany(o => o.Books)
+        .WithMany(b => b.Orders);
     }
 }

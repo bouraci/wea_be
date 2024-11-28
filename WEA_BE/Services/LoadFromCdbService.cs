@@ -10,16 +10,18 @@ namespace WEA_BE.Services;
 /// <summary>
 /// Statická třída poskytující službu pro načítání dat knih z JSON řetězce.
 /// </summary>
-public class LoadFromStringService
+public class LoadFromCdbService
 {
     private readonly DatabaseContext _ctx;
     private readonly IMapper _mapper;
     private readonly IAuditService _auditService;
-    public LoadFromStringService(DatabaseContext ctx, IMapper mapper, IAuditService auditService)
+    private readonly ILogger<LoadFromCdbService> _logger;
+    public LoadFromCdbService(DatabaseContext ctx, IMapper mapper, IAuditService auditService, ILogger<LoadFromCdbService> logger)
     {
         _ctx = ctx;
         _mapper = mapper;
         _auditService = auditService;
+        _logger = logger;
     }
     /// <summary>
     /// Načte data knih z řetězce ve formátu JSON a uloží je do databáze.
@@ -40,14 +42,27 @@ public class LoadFromStringService
         var isbnSet = new HashSet<string>(group.Select(x => x.isbn));
         foreach (var book in books)
         {
-            if (isbnSet.Contains(book.ISBN13))
+            try
             {
-                var oldBook = group.Single(x => x.isbn == book.ISBN13);
-                oldBook.book.IsHidden = true;
+                if (isbnSet.Contains(book.ISBN13))
+                {
+                    var oldBook = group.Single(x => x.isbn == book.ISBN13);
+                    oldBook.book.IsHidden = true;
+                    _auditService.LogAudit("", _mapper.Map<BookDto>(oldBook), LogType.HideBook, "cdb");
+                }
+                else
+                {
+                    _auditService.LogAudit("", _mapper.Map<BookDto>(book), LogType.LoadCdb, "cdb");
+                }
+                _ctx.Add(book);
+                _logger.LogInformation("Added book " + book.Id);
             }
-            _ctx.Add(book);
+            catch (Exception ex)
+            {
+                _logger.LogError("Could not add book " + book.Id + ": " + ex.Message);
+            }
         }
         await _ctx.SaveChangesAsync();
-        _auditService.LogAudit("", _mapper.Map<List<BookDto>>(books), LogType.LoadCdb, "cdb");
+
     }
 }

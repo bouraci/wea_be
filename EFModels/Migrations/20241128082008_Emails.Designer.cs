@@ -4,6 +4,7 @@ using EFModels.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EFModels.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20241128082008_Emails")]
+    partial class Emails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace EFModels.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
-
-            modelBuilder.Entity("BookOrder", b =>
-                {
-                    b.Property<int>("BooksId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("BooksId", "OrdersId");
-
-                    b.HasIndex("OrdersId");
-
-                    b.ToTable("BookOrder");
-                });
 
             modelBuilder.Entity("BookUser", b =>
                 {
@@ -147,6 +135,9 @@ namespace EFModels.Migrations
                     b.Property<bool>("IsHidden")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
                     b.Property<int>("PageCount")
                         .HasColumnType("int");
 
@@ -171,6 +162,8 @@ namespace EFModels.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.ToTable("Books");
                 });
@@ -307,21 +300,6 @@ namespace EFModels.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("BookOrder", b =>
-                {
-                    b.HasOne("EFModels.Models.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BooksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EFModels.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("BookUser", b =>
                 {
                     b.HasOne("EFModels.Models.Book", null)
@@ -335,6 +313,13 @@ namespace EFModels.Migrations
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("EFModels.Models.Book", b =>
+                {
+                    b.HasOne("EFModels.Models.Order", null)
+                        .WithMany("Books")
+                        .HasForeignKey("OrderId");
                 });
 
             modelBuilder.Entity("EFModels.Models.Comment", b =>
@@ -392,6 +377,11 @@ namespace EFModels.Migrations
             modelBuilder.Entity("EFModels.Models.Book", b =>
                 {
                     b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("EFModels.Models.Order", b =>
+                {
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("EFModels.Models.User", b =>

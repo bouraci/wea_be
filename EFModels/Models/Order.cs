@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EFModels.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace EFModels.Models;
 
@@ -10,4 +11,5 @@ public class Order
     public DateTime Created { get; set; }
     public User User { get; set; }
     public double totalPrice { get; set; }
+    public PaymentMethod? PaymentMethod { get; set; }
 }
