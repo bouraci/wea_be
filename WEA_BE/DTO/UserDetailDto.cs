@@ -9,4 +9,5 @@ public class UserDetailDto
     public DateTime? birthDay { get; set; }
     public List<string> FavouriteGerners { get; set; }
     public string? Referral { get; set; }
+    public string? Email { get; set; }
 }
