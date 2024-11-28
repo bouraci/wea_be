@@ -10,5 +10,5 @@ public enum LogType
     LoadCdb = 6,
     AddOrder = 7,
     UpdateUserDetail = 8,
-
+    HideBook = 9,
 }

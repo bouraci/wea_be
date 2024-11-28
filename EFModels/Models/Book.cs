@@ -22,6 +22,7 @@ public class Book
     public double? Price { get; set; }
     public ICollection<Comment> Comments { get; set; }
     public ICollection<User> Users { get; set; }
+    public ICollection<Order> Orders { get; set; }
 
 
     public override string ToString()

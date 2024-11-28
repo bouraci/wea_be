@@ -16,6 +16,7 @@ public class User
     public DateTime? BirthDay { get; set; }
     public ICollection<Genre>? FavouriteGerners { get; set; } = new HashSet<Genre>();
     public string? Referral { get; set; }
+    public string? Email { get; set; }
 
     public ICollection<Comment> Comments { get; set; }
     public ICollection<Book> FavouriteBooks { get; set; } = new HashSet<Book>();

@@ -77,7 +77,7 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<LoadFromStringService>();
+builder.Services.AddScoped<LoadFromCdbService>();
 builder.Services.AddScoped<LoadFromCsvService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAuditService, AuditService>();

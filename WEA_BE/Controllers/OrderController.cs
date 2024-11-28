@@ -37,7 +37,7 @@ public class OrderController : ControllerBase
             _logger.LogWarning("User name not found in JWT token");
             return Unauthorized("User is not authorized");
         }
-        var result = _orderService.AddOrder(user.UserName, orderAddRequest.bookIds);
+        var result = _orderService.AddOrder(user.UserName, orderAddRequest.bookIds, orderAddRequest.PaymentMethod);
         if (result)
         {
             return Ok("Order added");

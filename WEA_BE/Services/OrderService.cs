@@ -30,7 +30,16 @@ public class OrderService : IOrderService
         }
         return false;
     }
-    public bool AddOrder(string username, List<int> bookIds)
+
+    private double alterPayment(double totalPrice, PaymentMethod paymentMethod) =>
+        paymentMethod switch
+        {
+            PaymentMethod.OnDelivery => totalPrice + 50,
+            PaymentMethod.Transfer => totalPrice,
+            PaymentMethod.OnlineCard => totalPrice * 1.01,
+        };
+
+    public bool AddOrder(string username, List<int> bookIds, PaymentMethod paymentMethod)
     {
         var user = _ctx.Users.AsQueryable().Include(x => x.Address).Include(x => x.BillingAddress).SingleOrDefault(x => x.UserName == username);
         if (user is null) return false;
@@ -45,12 +54,14 @@ public class OrderService : IOrderService
             }
         }
         double totalprice = books.Sum(x => (double)x.Price);
+        totalprice = alterPayment(totalprice, paymentMethod);
         var order = new Order()
         {
             User = user,
             Books = books,
             Created = DateTime.Now,
-            totalPrice = totalprice
+            totalPrice = totalprice,
+            PaymentMethod = paymentMethod
         };
         _ctx.Orders.Add(order);
         _ctx.SaveChanges();
@@ -65,7 +76,11 @@ public class OrderService : IOrderService
     {
         var user = _ctx.Users.SingleOrDefault(x => x.UserName == username);
         if (user is null) return null;
-        List<Order> orders = _ctx.Orders.AsQueryable().Include(x => x.Books).Include(x => x.User).Include(x => x.Books).Where(x => x.User == user).ToList();
+        List<Order> orders = _ctx.Orders
+            .Where(x => x.User == user)
+            .Include(x => x.Books)
+            .Include(x => x.User)
+            .ToList();
         var dtos = _mapper.Map<List<OrderDto>>(orders);
         return dtos;
     }

@@ -1,4 +1,6 @@
-﻿namespace WEA_BE.DTO;
+﻿using EFModels.Enums;
+
+namespace WEA_BE.DTO;
 
 public class OrderDto
 {
@@ -6,4 +8,5 @@ public class OrderDto
     public List<BookSimpleDto> Books { get; set; }
     public DateTime Created { get; set; }
     public double totalPrice { get; set; }
+    public PaymentMethod? PaymentMethod { get; set; }
 }

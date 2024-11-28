@@ -18,7 +18,7 @@ public class UserService : IUserService
         _mapper = mapper;
         _auditService = auditService;
     }
-    public bool UpdateUser(string userName, AddressDto? address, AddressDto? billingAddress, bool? processData, bool? isMale, DateTime? birthDay, List<string> FavouriteGerners, string? referral)
+    public bool UpdateUser(string userName, AddressDto? address, AddressDto? billingAddress, bool? processData, bool? isMale, DateTime? birthDay, List<string> FavouriteGerners, string? referral, string? email)
     {
         var user = _ctx.Users.AsQueryable().Include(x => x.BillingAddress).Include(x => x.Address).SingleOrDefault(x => x.UserName == userName);
         if (user == null) return false;
@@ -48,6 +48,7 @@ public class UserService : IUserService
         }
         user.FavouriteGerners = genres;
         user.Referral = referral;
+        user.Email = email;
         _ctx.SaveChanges();
 
         _auditService.LogAudit(oldUser, _mapper.Map<UserDetailDto>(user), LogType.UpdateUserDetail, user.UserName);
