@@ -2,6 +2,7 @@
 using EFModels.Data;
 using EFModels.Enums;
 using EFModels.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using WEA_BE.DTO;
 
@@ -35,6 +36,8 @@ public class LoadFromCdbService
     {
         var books = _mapper.Map<List<Book>>(data);
         List<(Book book, string isbn)> group = _ctx.Books
+                .AsQueryable()
+                .Include(x => x.Comments)
                 .Select(x => new { Book = x, ISBN = x.ISBN13 })
                 .AsEnumerable()
                 .Select(x => (x.Book, x.ISBN))
@@ -46,15 +49,16 @@ public class LoadFromCdbService
             {
                 if (isbnSet.Contains(book.ISBN13))
                 {
-                    var oldBook = group.Single(x => x.isbn == book.ISBN13);
+                    var oldBook = group.Single(x => x.isbn == book.ISBN13 && x.book.IsHidden == false);
                     oldBook.book.IsHidden = true;
-                    _auditService.LogAudit("", _mapper.Map<BookDto>(oldBook), LogType.HideBook, "cdb");
+                    _auditService.LogAudit("", _mapper.Map<BookDto>(oldBook.book), LogType.HideBook, "cdb");
+                    book.Comments = oldBook.book.Comments;
                 }
                 else
                 {
                     _auditService.LogAudit("", _mapper.Map<BookDto>(book), LogType.LoadCdb, "cdb");
                 }
-                _ctx.Add(book);
+                _ctx.Add((Book)book);
                 _logger.LogInformation("Added book " + book.Id);
             }
             catch (Exception ex)

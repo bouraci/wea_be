@@ -10,9 +10,9 @@ public class CdbBookDto
     public string Categories { get; set; }
     public string Thumbnail { get; set; }
     public string Description { get; set; }
-    public int PublicationYear { get; set; }
-    public double Rating { get; set; }
-    public int PageCount { get; set; }
-    public int TotalRatings { get; set; }
-    public double Price { get; set; }
+    public int published_year { get; set; }
+    public double average_rating { get; set; }
+    public int num_pages { get; set; }
+    public int ratings_count { get; set; }
+    public double price { get; set; }
 }

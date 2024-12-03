@@ -3,6 +3,7 @@ using EFModels.Data;
 using EFModels.Enums;
 using EFModels.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using WEA_BE.DTO;
 
 namespace WEA_BE.Services;
@@ -61,7 +62,9 @@ public class OrderService : IOrderService
             Books = books,
             Created = DateTime.Now,
             totalPrice = totalprice,
-            PaymentMethod = paymentMethod
+            PaymentMethod = paymentMethod,
+            UserSnapshot = JsonSerializer.Serialize(user),
+            Status = OrderStatus.Processing
         };
         _ctx.Orders.Add(order);
         _ctx.SaveChanges();

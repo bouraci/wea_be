@@ -23,6 +23,8 @@ public class Book
     public ICollection<Comment> Comments { get; set; }
     public ICollection<User> Users { get; set; }
     public ICollection<Order> Orders { get; set; }
+    public ICollection<Genre> Genres { get; set; } = new HashSet<Genre>();
+    public DateTime LastUpdated { get; set; } = DateTime.Now;
 
 
     public override string ToString()

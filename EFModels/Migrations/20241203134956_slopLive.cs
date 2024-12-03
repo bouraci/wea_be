@@ -5,27 +5,24 @@
 namespace EFModels.Migrations
 {
     /// <inheritdoc />
-    public partial class AddNameToUser : Migration
+    public partial class slopLive : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "Name",
-                table: "Users",
-                type: "longtext",
-                nullable: false)
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-
+            migrationBuilder.AddColumn<int>(
+                name: "Status",
+                table: "Orders",
+                type: "int",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Name",
-                table: "Users");
+                name: "Status",
+                table: "Orders");
         }
     }
 }

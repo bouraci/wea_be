@@ -9,4 +9,5 @@ public class OrderDto
     public DateTime Created { get; set; }
     public double totalPrice { get; set; }
     public PaymentMethod? PaymentMethod { get; set; }
+    public OrderStatus? Status { get; set; }
 }

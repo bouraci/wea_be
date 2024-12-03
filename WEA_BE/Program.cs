@@ -50,9 +50,14 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<CdbBookDto, Book>()
         .ForMember(dest => dest.Genre, opt => opt.MapFrom(src => src.Categories))
         .ForMember(dest => dest.CoverImageUrl, opt => opt.MapFrom(src => src.Thumbnail))
+        .ForMember(dest => dest.PublicationYear, opt => opt.MapFrom(src => src.published_year))
+        .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.average_rating))
+        .ForMember(dest => dest.PageCount, opt => opt.MapFrom(src => src.num_pages))
+        .ForMember(dest => dest.TotalRatings, opt => opt.MapFrom(src => src.ratings_count))
         .ForMember(dest => dest.Comments, opt => opt.Ignore())
         .ForMember(dest => dest.Users, opt => opt.Ignore())
         .ForMember(dest => dest.IsHidden, opt => opt.Ignore())
+        .ForMember(dest => dest.Genres, opt => opt.Ignore())
         .ForMember(dest => dest.Id, opt => opt.Ignore());
     cfg.CreateMap<Book, BookDto>().ReverseMap();
     cfg.CreateMap<Book, BookSimpleDto>().ReverseMap();
