@@ -10,4 +10,5 @@ public class OrderDto
     public double totalPrice { get; set; }
     public PaymentMethod? PaymentMethod { get; set; }
     public OrderStatus? Status { get; set; }
+    public string? UserSnapshot {get; set; }
 }
