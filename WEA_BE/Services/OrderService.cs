@@ -40,11 +40,11 @@ public class OrderService : IOrderService
             PaymentMethod.OnlineCard => totalPrice * 1.01,
         };
 
-    public bool AddOrder(string username, List<int> bookIds, PaymentMethod paymentMethod)
+    public int AddOrder(string username, List<int> bookIds, PaymentMethod paymentMethod)
     {
         var user = _ctx.Users.AsQueryable().Include(x => x.Address).Include(x => x.BillingAddress).SingleOrDefault(x => x.UserName == username);
-        if (user is null) return false;
-        if (!CanUserOrder(user)) return false;
+        if (user is null) return -1;
+        if (!CanUserOrder(user)) return -1;
         List<Book> books = new();
         foreach (int id in bookIds)
         {
@@ -72,7 +72,7 @@ public class OrderService : IOrderService
 
         _auditService.LogAudit("", _mapper.Map<OrderDto>(order), LogType.AddOrder, user.UserName);
 
-        return true;
+        return order.Id;
     }
 
     public List<OrderDto> GetOrders(string username)

@@ -38,9 +38,9 @@ public class OrderController : ControllerBase
             return Unauthorized("User is not authorized");
         }
         var result = _orderService.AddOrder(user.UserName, orderAddRequest.bookIds, orderAddRequest.PaymentMethod);
-        if (result)
+        if (result != -1)
         {
-            return Ok("Order added");
+            return Ok(result);
         }
         else return BadRequest("Unable to add order");
     }
