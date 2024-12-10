@@ -36,7 +36,7 @@ public class LoadFromCdbService
     {
         var books = _mapper.Map<List<Book>>(data);
         List<(Book book, string isbn)> group = _ctx.Books
-                .AsQueryable()
+                .Where(x => x.IsHidden == false)
                 .Include(x => x.Comments)
                 .Select(x => new { Book = x, ISBN = x.ISBN13 })
                 .AsEnumerable()
