@@ -27,7 +27,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 {
     var ConnectionString = builder.Configuration.GetConnectionString("Default");
     var serverVersion = ServerVersion.AutoDetect(ConnectionString);
-    options.UseMySql(ConnectionString, serverVersion);
+    options.UseMySql(ConnectionString, serverVersion, o => { o.EnableRetryOnFailure(10, TimeSpan.FromSeconds(30), null); });
 });
 
 var WEACors = "_WEACors";
